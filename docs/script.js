@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let spinDuration = 3040; // Duração normal do spin em ms (38 * 80)
     let turboSpinDuration = 1000; // Duração do spin em modo turbo em ms
     let isMegaWinAnimating = false; // Flag para controlar se a animação de mega ganho está ativa
-    let megaWinTimeoutId; // NOVO: ID para o setTimeout do Mega Ganho
+    let megaWinTimeoutId = null; // ID para o setTimeout do Mega Ganho (ainda útil para limpar se houver um clique durante a contagem)
 
     // Símbolos
     const symbols = [
@@ -258,7 +258,11 @@ document.addEventListener('DOMContentLoaded', () => {
         bonusSpinsLeft = 5; // 5 giros de bônus
         showMessage("🎉 BÔNUS ATIVADO! 🎉 Prepare-se para o Fortune Tiger!");
 
-        stopAutoSpin(); // Para auto-spin ao entrar no bônus
+        // DESATIVA TURBO E AUTO-SPIN AO ENTRAR NO BÔNUS
+        stopAutoSpin(); // Desativa o auto-spin
+        isTurboMode = false; // Desativa o modo turbo
+        turboButton.classList.remove('active'); // Remove a classe 'active' do botão turbo
+        turboButton.textContent = 'TURBO'; // Reseta o texto do botão turbo
 
         if (mainMusic) mainMusic.pause();
         bonusMusic.currentTime = 0;
@@ -342,6 +346,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const increment = targetMegaWinAmount / steps;
         let stepCount = 0;
 
+        // Limpa qualquer timeout anterior de Mega Ganho para evitar conflitos (se houver)
+        if (megaWinTimeoutId) {
+            clearTimeout(megaWinTimeoutId);
+            megaWinTimeoutId = null;
+        }
+
         animationInterval = setInterval(() => {
             currentCountedAmount += increment;
             stepCount++;
@@ -350,8 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 clearInterval(animationInterval);
                 animationInterval = null; // Limpa o intervalo
                 
-                // NOVO: Define um timeout para esconder a tela após 30 segundos, se não for clicado
-                megaWinTimeoutId = setTimeout(() => hideMegaWin(fromBonus), 30000); 
+                // NENHUM setTimeout AQUI. O mega ganho permanece até o clique.
             }
             megaWinAmountDisplay.textContent = `R$ ${currentCountedAmount.toFixed(2)}`;
         }, duration / steps);
@@ -369,6 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function skipMegaWin() {
         // Limpa o timeout de auto-fechamento do Mega Ganho se ele estiver ativo
+        // Mantido para robustez, caso algum outro timeout seja adicionado ou haja um estado inconsistente
         if (megaWinTimeoutId) {
             clearTimeout(megaWinTimeoutId);
             megaWinTimeoutId = null;
@@ -403,6 +413,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (mainMusic) mainMusic.play(); // Volta a música principal se não for bônus
         }
         updateDisplay(); // Re-habilita botões
+        // Remove o event listener de clique para evitar múltiplos listeners em futuras chamadas
+        megaWinScreen.removeEventListener('click', skipMegaWin);
     }
 
     // --- Event Listeners para Botões ---
@@ -474,3 +486,4 @@ document.addEventListener('DOMContentLoaded', () => {
     renderSymbol(reel3, getRandomSymbol(), false);
     updateDisplay(); // Garante que o estado inicial dos botões esteja correto
 });
+            
