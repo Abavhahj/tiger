@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let bonusSpinsLeft = 0;
     const bonusChance = 0.05; // 5% de chance de ativar o bônus a cada giro
     const bonusSymbol = { name: 'wild', display: '🐯', multiplier: 50 }; // O símbolo do Tigre para o bônus
-    const bonusMultiplier = 10; // Multiplicador se preencher a tela no bônus
+    const bonusMultiplier = 50; // Multiplicador se preencher a tela no bônus
 
     // Símbolos: Nome (para referência), Display (o que aparece), Multiplicador
     const symbols = [
