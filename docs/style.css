@@ -201,3 +201,56 @@ h1 {
     0% { transform: translateY(0); }
     100% { transform: translateY(-100%); } /* Simula o símbolo subindo e saindo da vista */
 }
+
+/* --- Estilos para a Tela de Mega Ganho --- */
+.mega-win-screen {
+    position: fixed; /* Fixa a tela de ganho sobre todo o conteúdo */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* Fundo escuro semi-transparente */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Garante que fique acima de tudo */
+    opacity: 0; /* Começa invisível */
+    visibility: hidden; /* Esconde completamente */
+    transition: opacity 0.5s ease; /* Transição suave */
+    backdrop-filter: blur(5px); /* Efeito de desfoque no fundo */
+    -webkit-backdrop-filter: blur(5px); /* Para compatibilidade com Safari */
+}
+
+.mega-win-screen.active {
+    opacity: 1; /* Torna visível */
+    visibility: visible;
+}
+
+.mega-win-image {
+    max-width: 90%; /* Ajusta a imagem para caber na tela */
+    max-height: 60%;
+    object-fit: contain; /* Garante que a imagem não seja cortada */
+    animation: mega-win-zoom 2s infinite alternate; /* Animação de zoom */
+}
+
+.mega-win-amount {
+    color: #ffd700; /* Cor dourada para o valor */
+    font-size: 3.5em; /* Tamanho grande para o valor */
+    font-weight: bold;
+    text-shadow: 0 0 15px rgba(255, 255, 0, 0.8); /* Efeito de brilho */
+    margin-top: 20px;
+    animation: bounce 1s infinite; /* Pequeno efeito de "pulso" */
+}
+
+/* Animação de zoom para a imagem de mega ganho */
+@keyframes mega-win-zoom {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.05); } /* Aumenta ligeiramente */
+}
+
+/* Animação de pulso para o valor */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
