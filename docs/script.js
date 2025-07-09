@@ -4,24 +4,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const reel3 = document.getElementById('reel3');
     const balanceValue = document.getElementById('balance-value');
     const betValueDisplayInGameInfo = document.getElementById('bet-value');
-    const betValueDisplayInControls = document.querySelector('.current-bet-display'); // Este elemento foi removido no HTML, mas mantido aqui para evitar erros. Pode ser removido se não for usado.
+    // const betValueDisplayInControls = document.querySelector('.current-bet-display'); // Removido: Este elemento não existe mais no HTML
     const spinButton = document.getElementById('spin-button');
     const messageDisplay = document.getElementById('message');
     const turboButton = document.getElementById('turbo-button');
     const autoSpinButton = document.getElementById('auto-spin-button');
-    const betButtons = document.querySelectorAll('.bet-button'); // NOVOS: Seleciona todos os botões de aposta
-    const versionNumberDisplay = document.getElementById('version-number'); // NOVO: Elemento da versão
+    const betButtons = document.querySelectorAll('.bet-button'); // Seleciona todos os botões de aposta
+    const versionNumberDisplay = document.getElementById('version-number'); // Elemento da versão
 
     // Elementos da tela de Mega Ganho
     const megaWinScreen = document.getElementById('mega-win-screen');
     const megaWinAmountDisplay = document.getElementById('mega-win-amount');
-
+    
     // --- Variáveis do Jogo ---
     let balance = 100.00;
     let currentBet = 1.00; // Aposta inicial
     const minBet = 1.00; // Aposta mínima
     const maxBet = 400.00; // Aposta máxima
-    const VERSION = "0.0.0.1"; // NOVO: Número da versão
+    const VERSION = "0.0.0.1"; // Número da versão
 
     // --- Configuração de Áudio ---
     const audioPath = './audio/';
@@ -50,10 +50,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Variáveis do Bônus ---
     let inBonusRound = false;
     let bonusSpinsLeft = 0;
-    const scatterSymbol = { name: 'coin', display: '💰', multiplier: 0 }; // NOVO: Símbolo Scatter para ativar o bônus
+    const scatterSymbol = { name: 'coin', display: '💰', multiplier: 0 }; // Símbolo Scatter para ativar o bônus
     const bonusSymbol = { name: 'wild', display: '🐯', multiplier: 50 }; // Símbolo WILD dentro do bônus
     const bonusMultiplier = 50;
-    let isFirstBonusSpin = false; // NOVO: Flag para o primeiro giro do bônus
+    let isFirstBonusSpin = false; // Flag para o primeiro giro do bônus
 
     // --- Variáveis de Turbo e Auto-Spin ---
     let isTurboMode = false;
@@ -62,9 +62,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let turboSpinDuration = 1000; // Duração do spin em modo turbo em ms
     let isMegaWinAnimating = false;
     let megaWinTimeoutId = null;
-    let currentSpinInterval = null; // NOVO: Para controlar o intervalo do giro atual para aceleração
+    let currentSpinInterval = null; // Para controlar o intervalo do giro atual para aceleração
 
-    // Símbolos e suas probabilidades (NOVO: Ponderação)
+    // Símbolos e suas probabilidades (Ponderação)
     const symbols = [
         { name: 'cherry', display: '🍒', multiplier: 2 },
         { name: 'bell', display: '🔔', multiplier: 5 },
@@ -74,9 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'coin', display: '💰', multiplier: 0 } // Scatter
     ];
 
-    // NOVO: Array ponderado para seleção de símbolos
-    // Símbolos "ruins" (cherry, bell) mais frequentes, "bons" (bar, seven, wild) menos frequentes
-    // Scatter (coin) tem uma chance média-baixa de aparecer
+    // Array ponderado para seleção de símbolos
     const weightedSymbols = [];
     symbols.forEach(symbol => {
         let weight;
@@ -99,23 +97,22 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateDisplay() {
         balanceValue.textContent = balance.toFixed(2);
         betValueDisplayInGameInfo.textContent = currentBet.toFixed(2); 
-        // betValueDisplayInControls.textContent = currentBet.toFixed(2); // Removido do HTML
-
+        
         const disableAllControls = inBonusRound || isAutoSpin || isMegaWinAnimating;
 
         spinButton.disabled = disableAllControls || balance < currentBet;
-
+        
         // Gerencia o estado dos botões de aposta pré-definidos
         betButtons.forEach(button => {
             const betAmount = parseFloat(button.dataset.bet);
-            button.disabled = disableAllControls || betAmount > balance; // Desabilita se a aposta for maior que o saldo
+            button.disabled = disableAllControls || betAmount > balance;
             if (betAmount === currentBet) {
-                button.classList.add('active-bet'); // Adiciona classe para destacar a aposta atual
+                button.classList.add('active-bet');
             } else {
                 button.classList.remove('active-bet');
             }
         });
-
+        
         // Botões Turbo e Auto
         turboButton.disabled = disableAllControls;
         autoSpinButton.disabled = disableAllControls;
@@ -184,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updateDisplay();
         showMessage(inBonusRound ? `Bônus: ${bonusSpinsLeft} giros restantes...` : "Girando...");
-
+        
         spinButton.disabled = true;
 
         spinSound.currentTime = 0;
@@ -213,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderSymbol(reel1, results[0], false);
                 renderSymbol(reel2, results[1], false);
                 renderSymbol(reel3, results[2], false);
-
+                
                 if (inBonusRound) {
                     checkBonusWin(results);
                 } else {
@@ -226,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (!inBonusRound && mainMusic) mainMusic.play(); 
 
-                // NOVO: Auto-spin não roda automaticamente no bônus
+                // Auto-spin não roda automaticamente no bônus
                 if (isAutoSpin && !inBonusRound && !isMegaWinAnimating) {
                     setTimeout(performSpin, 500); 
                 }
@@ -243,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const s2 = results[1];
         const s3 = results[2];
 
-        // NOVO: Verificação de 3 Scatters para ativar o bônus
+        // Verificação de 3 Scatters para ativar o bônus
         const scatterCount = results.filter(s => s.name === scatterSymbol.name).length;
         if (scatterCount === 3) {
             startBonusRound();
@@ -308,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function startBonusRound() {
         inBonusRound = true;
         bonusSpinsLeft = 5; // 5 giros de bônus
-        isFirstBonusSpin = true; // NOVO: Marca o primeiro giro do bônus
+        isFirstBonusSpin = true; // Marca o primeiro giro do bônus
         showMessage("🎉 BÔNUS ATIVADO! 🎉 Prepare-se para o Fortune Tiger!");
 
         stopAutoSpin(); // Desativa o auto-spin
@@ -332,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const s2 = results[1];
         const s3 = results[2];
 
-        // NOVO: Após o primeiro giro, a flag é desativada
+        // Após o primeiro giro, a flag é desativada
         if (isFirstBonusSpin) {
             isFirstBonusSpin = false;
         }
@@ -344,7 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
             balance += bonusWinAmount;
             winSound.currentTime = 0;
             winSound.play();
-
+            
             if (bonusWinAmount >= (currentBet * 8) && bonusWinAmount >= 50) {
                 console.log("Condições para Mega Ganho (Bônus) atendidas! Chamando showMegaWin(). Ganho:", bonusWinAmount.toFixed(2), "Aposta:", currentBet.toFixed(2));
                 showMegaWin(bonusWinAmount, true);
@@ -363,10 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showMessage(message);
         updateDisplay();
 
-        // NOVO: Não chama performSpin automaticamente no bônus
-        // if (inBonusRound && bonusSpinsLeft > 0 && !isMegaWinAnimating) {
-        //     setTimeout(performSpin, 500);
-        // }
+        // Não chama performSpin automaticamente no bônus
     }
 
     function endBonusRound() {
@@ -441,7 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         currentCountedAmount = targetMegaWinAmount;
         megaWinAmountDisplay.textContent = `R$ ${targetMegaWinAmount.toFixed(2)}`;
-
+        
         hideMegaWin(finishMegaWinCallback !== null); 
     }
 
@@ -469,13 +463,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Event Listeners para Botões ---
     spinButton.addEventListener('click', performSpin);
 
-    // NOVO: Event listeners para os botões de aposta pré-definidos
+    // Event listeners para os botões de aposta pré-definidos
     betButtons.forEach(button => {
         button.addEventListener('click', () => {
             buttonClickSound.currentTime = 0;
             buttonClickSound.play();
             const newBet = parseFloat(button.dataset.bet);
-            if (newBet <= balance) { // Só permite mudar a aposta se tiver saldo suficiente
+            if (newBet <= balance) {
                 currentBet = newBet;
                 updateDisplay();
             } else {
@@ -499,4 +493,25 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isAutoSpin) {
             stopAutoSpin();
         } else {
-    
+            startAutoSpin();
+        }
+    });
+
+    function startAutoSpin() {
+        if (balance < currentBet) {
+            showMessage("Saldo insuficiente para iniciar Auto Spin!");
+            return;
+        }
+        isAutoSpin = true;
+        updateDisplay();
+        performSpin();
+    }
+
+    function stopAutoSpin() {
+        isAutoSpin = false;
+        updateDisplay();
+    }
+
+    // Acelerar giro ao tocar na tela (fora do modo turbo)
+    // Adiciona o listener ao contêiner principal para capturar cliques na área do jogo
+    document.querySelector('.game-container').addEventListener('click', (event
