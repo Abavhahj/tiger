@@ -3,7 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const reel2 = document.getElementById('reel2');
     const reel3 = document.getElementById('reel3');
     const balanceValue = document.getElementById('balance-value');
-    const betValue = document.getElementById('bet-value');
+    const betValueDisplayInGameInfo = document.getElementById('bet-value'); // Elemento da aposta no cabeçalho
+    const betValueDisplayInControls = document.querySelector('.current-bet-display'); // Elemento da aposta nos controles
     const betDownButton = document.getElementById('bet-down');
     const betUpButton = document.getElementById('bet-up');
     const spinButton = document.getElementById('spin-button');
@@ -63,7 +64,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Atualiza a exibição de saldo e aposta e estado dos botões
     function updateDisplay() {
         balanceValue.textContent = balance.toFixed(2);
-        betValue.textContent = currentBet.toFixed(2);
+        // Atualiza AMBOS os spans de valor da aposta
+        betValueDisplayInGameInfo.textContent = currentBet.toFixed(2); 
+        betValueDisplayInControls.textContent = currentBet.toFixed(2); 
         
         const disableSpinAndBet = inBonusRound || isAutoSpin;
 
