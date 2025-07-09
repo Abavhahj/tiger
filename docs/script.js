@@ -18,9 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let balance = 100.00;
     let currentBet = 1.00;
-    const minBet = 0.50;
-    const maxBet = 400.00;
-    const betStep = 1.50;
+    const minBet = 1.00;
+    const maxBet = 40000.00;
+    const betStep = 50.00;
 
     // --- Configuração de Áudio ---
     const audioPath = './audio/';
