@@ -19,8 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let balance = 100.00;
     let currentBet = 1.00;
     const minBet = 0.50;
-    const maxBet = 10.00;
-    const betStep = 0.50;
+    const maxBet = 400.00;
+    const betStep = 1.50;
 
     // --- Configuração de Áudio ---
     const audioPath = './audio/';
@@ -34,12 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const megaWinSound = new Audio(audioPath + 'mega_win_sound.mp3');
 
     // Configurações de volume
-    spinSound.volume = 0.7;
+    spinSound.volume = 0.9;
     winSound.volume = 0.8;
-    loseSound.volume = 0.7;
-    buttonClickSound.volume = 0.5;
+    loseSound.volume = 0.6;
+    buttonClickSound.volume = 0.7;
     bonusMusic.volume = 0.6;
-    mainMusic.volume = 0.2;
+    mainMusic.volume = 0.12;
     megaWinSound.volume = 0.8;
 
     mainMusic.loop = true;
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let bonusSpinsLeft = 0;
     const bonusChance = 0.05; // 5% de chance de ativar o bônus a cada giro
     const bonusSymbol = { name: 'wild', display: '🐯', multiplier: 50 };
-    const bonusMultiplier = 50;
+    const bonusMultiplier = 1000;
 
     // --- Variáveis de Turbo e Auto-Spin ---
     let isTurboMode = false;
