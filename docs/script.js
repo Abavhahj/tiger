@@ -6,10 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const betValue = document.getElementById('bet-value');
     const betDownButton = document.getElementById('bet-down');
     const betUpButton = document.getElementById('bet-up');
-    const spinButton = document.getElementById('spin-button');
+    const spinButton = document.getElementById('spin-button'); // ÚNICO BOTÃO GIRAR
     const messageDisplay = document.getElementById('message');
-    const turboButton = document.getElementById('turbo-button'); // NOVO
-    const autoSpinButton = document.getElementById('auto-spin-button'); // NOVO
+    const turboButton = document.getElementById('turbo-button');
+    const autoSpinButton = document.getElementById('auto-spin-button');
 
     let balance = 100.00;
     let currentBet = 1.00;
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loseSound = new Audio(audioPath + 'lose.mp3');
     const buttonClickSound = new Audio(audioPath + 'button.mp3');
     const bonusMusic = new Audio(audioPath + 'bonus_music.mp3');
-    const mainMusic = new Audio(audioPath + 'main_music.mp3'); // Opcional: Música de fundo principal
+    const mainMusic = new Audio(audioPath + 'main_music.mp3'); 
 
     // Configurações de volume
     spinSound.volume = 0.7;
@@ -35,25 +35,24 @@ document.addEventListener('DOMContentLoaded', () => {
     bonusMusic.volume = 0.6;
     mainMusic.volume = 0.2;
 
-    // Loop da música principal (se você tiver uma)
     mainMusic.loop = true;
     bonusMusic.loop = true;
 
     // --- Variáveis do Bônus ---
     let inBonusRound = false;
     let bonusSpinsLeft = 0;
-    const bonusChance = 0.05; // 5% de chance de ativar o bônus a cada giro
+    const bonusChance = 0.05; 
     const bonusSymbol = { name: 'wild', display: '🐯', multiplier: 50 };
-    const bonusMultiplier = 50; // Multiplicador se preencher a tela no bônus
+    const bonusMultiplier = 50; 
 
     // --- Variáveis de Turbo e Auto-Spin ---
     let isTurboMode = false;
     let isAutoSpin = false;
     let autoSpinIntervalId = null;
-    let spinDuration = 3040; // Duração normal do spin em ms (38 * 80)
-    let turboSpinDuration = 1000; // Duração do spin em modo turbo em ms (ajuste conforme o spin.mp3)
+    let spinDuration = 3040; 
+    let turboSpinDuration = 1000; 
 
-    // Símbolos: Nome (para referência), Display (o que aparece), Multiplicador
+    // Símbolos
     const symbols = [
         { name: 'cherry', display: '🍒', multiplier: 2 },
         { name: 'bell', display: '🔔', multiplier: 5 },
@@ -62,38 +61,44 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'wild', display: '🐯', multiplier: 50 }
     ];
 
-    // Atualiza a exibição de saldo e aposta
+    // Atualiza a exibição de saldo e aposta e estado dos botões
     function updateDisplay() {
         balanceValue.textContent = balance.toFixed(2);
         betValue.textContent = currentBet.toFixed(2);
-        // Desabilita o botão de girar se não tiver saldo ou se estiver em bônus ou auto-spin
-        spinButton.disabled = balance < currentBet || inBonusRound || isAutoSpin;
-        // Desabilita botões de aposta durante o bônus ou auto-spin
-        betDownButton.disabled = inBonusRound || isAutoSpin;
-        betUpButton.disabled = inBonusRound || isAutoSpin;
-        // Desabilita botões de turbo/auto durante o bônus
+
+        const disableAllControls = inBonusRound || isAutoSpin;
+
+        spinButton.disabled = disableAllControls || balance < currentBet;
+        betDownButton.disabled = disableAllControls;
+        betUpButton.disabled = disableAllControls;
+
+        // Botões Turbo e Auto não devem ser desabilitados pelo auto-spin ou bônus, apenas controlados
+        // Eles são desabilitados apenas durante o bônus para evitar mudanças de modo no meio
         turboButton.disabled = inBonusRound;
         autoSpinButton.disabled = inBonusRound;
 
-        // Atualiza classe 'active' para botões de turbo/auto
+
+        // Atualiza classe 'active' e texto para botões de turbo/auto
         if (isTurboMode) {
             turboButton.classList.add('active');
+            turboButton.textContent = 'TURBO ATIVO'; // Texto no botão
         } else {
             turboButton.classList.remove('active');
+            turboButton.textContent = 'TURBO'; // Texto no botão
         }
         if (isAutoSpin) {
             autoSpinButton.classList.add('active');
+            autoSpinButton.textContent = 'AUTO ATIVO'; // Texto no botão
         } else {
             autoSpinButton.classList.remove('active');
+            autoSpinButton.textContent = 'AUTO'; // Texto no botão
         }
     }
 
-    // Função para renderizar um símbolo na bobina
     function renderSymbol(reelElement, symbolObj) {
         reelElement.innerHTML = `<div class="symbol symbol-${symbolObj.name}">${symbolObj.display}</div>`;
     }
 
-    // Seleciona um símbolo aleatório (ou o símbolo de bônus se estiver no bônus)
     function getRandomSymbol() {
         if (inBonusRound) {
             return Math.random() < 0.9 ? bonusSymbol : { name: 'empty', display: ' ', multiplier: 0 };
@@ -101,25 +106,25 @@ document.addEventListener('DOMContentLoaded', () => {
         return symbols[Math.floor(Math.random() * symbols.length)];
     }
 
-    // Função para iniciar a música principal (chame isso ao iniciar o jogo)
     function playMainMusic() {
         mainMusic.currentTime = 0;
         mainMusic.play().catch(e => console.log("Música principal não pôde tocar automaticamente:", e));
     }
 
-    // Lógica do giro principal
+    // Função principal de giro
     function performSpin() {
         if (!inBonusRound && balance < currentBet) {
             showMessage("Saldo insuficiente para apostar!");
-            stopAutoSpin(); // Para auto-spin se o saldo acabar
+            stopAutoSpin();
             return;
         }
         if (!inBonusRound) {
             balance -= currentBet;
         }
 
-        updateDisplay();
+        updateDisplay(); // Atualiza display e estado dos botões
         showMessage(inBonusRound ? `Bônus: ${bonusSpinsLeft} giros restantes...` : "Girando...");
+
         spinButton.disabled = true; // Desabilita o botão enquanto gira
 
         spinSound.currentTime = 0;
@@ -129,8 +134,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let spinCount = 0;
         const currentSpinDuration = isTurboMode ? turboSpinDuration : spinDuration;
-        const intervalStep = 80; // Intervalo de atualização visual
-        const maxSpins = Math.floor(currentSpinDuration / intervalStep); // Calcula maxSpins baseado na duração
+        const intervalStep = 80;
+        const maxSpins = Math.floor(currentSpinDuration / intervalStep); 
 
         const spinInterval = setInterval(() => {
             renderSymbol(reel1, getRandomSymbol());
@@ -152,12 +157,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         startBonusRound();
                     }
                 }
-                spinButton.disabled = false; // Habilita o botão novamente
-                if (!inBonusRound && mainMusic) mainMusic.play(); // Retoma música principal se não estiver em bônus
+                spinButton.disabled = false; 
+                if (!inBonusRound && mainMusic) mainMusic.play(); 
 
-                // Se estiver em auto-spin e não em bônus, gira novamente após um pequeno atraso
                 if (isAutoSpin && !inBonusRound) {
-                    setTimeout(performSpin, 500); // Pequeno atraso entre giros automáticos
+                    setTimeout(performSpin, 500); 
                 }
             }
         }, intervalStep);
@@ -258,7 +262,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showMessage(message);
         updateDisplay();
 
-        // Se ainda houver giros de bônus, gira novamente após um pequeno atraso
         if (inBonusRound && bonusSpinsLeft > 0) {
             setTimeout(performSpin, 500);
         }
@@ -300,8 +303,8 @@ document.addEventListener('DOMContentLoaded', () => {
         buttonClickSound.currentTime = 0;
         buttonClickSound.play();
         isTurboMode = !isTurboMode; // Alterna o modo turbo
-        showMessage(isTurboMode ? "Modo TURBO ativado!" : "Modo TURBO desativado.");
-        updateDisplay(); // Atualiza o estado visual do botão
+        // A mensagem "Modo TURBO ativado/desativado" agora será exibida no próprio botão via updateDisplay()
+        updateDisplay(); 
     });
 
     // --- Lógica de Auto Spin ---
@@ -321,19 +324,18 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         isAutoSpin = true;
-        showMessage("Auto Spin ativado!");
+        // A mensagem "Auto Spin ativado" agora será exibida no próprio botão via updateDisplay()
         updateDisplay();
         performSpin(); // Inicia o primeiro giro automático
     }
 
     function stopAutoSpin() {
         isAutoSpin = false;
-        showMessage("Auto Spin desativado.");
+        // A mensagem "Auto Spin desativado" agora será exibida no próprio botão via updateDisplay()
         updateDisplay();
-        // Nenhuma necessidade de clearInterval aqui, pois o auto-spin é encadeado com setTimeout
     }
 
-    // Exibe mensagens temporárias
+    // Exibe mensagens temporárias (agora mais para mensagens de jogo, não status de modo)
     function showMessage(msg) {
         messageDisplay.textContent = msg;
     }
@@ -344,5 +346,5 @@ document.addEventListener('DOMContentLoaded', () => {
     renderSymbol(reel1, getRandomSymbol());
     renderSymbol(reel2, getRandomSymbol());
     renderSymbol(reel3, getRandomSymbol());
-    updateDisplay();
+    updateDisplay(); // Garante que o estado inicial dos botões esteja correto
 });
