@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fortune Tiger</title>
+    <title>Fortune Tiger (Mobile Slot)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="game-container">
-        <div class="game-header">
-            <h1>Fortune Tiger 🐯</h1>
-            <div class="game-info-line">
-                <div class="balance">Saldo: R$ <span id="balance-value">0.00</span></div>
-                <div class="bet">Aposta: R$ <span id="bet-value">0.00</span></div>
-            </div>
-            <div class="version">V: <span id="version-number"></span></div> 
+    <div class="container">
+        <h1>Fortune Tiger 🐯</h1>
+
+        <div class="game-info">
+            <p>Saldo: R$ <span id="balance-value">100.00</span></p>
+            <p>Aposta: R$ <span id="bet-value">1.00</span></p>
         </div>
 
         <div class="reels-container">
@@ -23,33 +21,23 @@
             <div class="reel" id="reel3"></div>
         </div>
 
-        <div class="message" id="message">Bem-vindo ao Fortune Tiger!</div>
+        <div class="message-display" id="message"></div>
 
         <div class="controls">
-            <div class="bet-buttons">
-                <button class="bet-button" data-bet="1">R$1</button>
-                <button class="bet-button" data-bet="5">R$5</button>
-                <button class="bet-button" data-bet="20">R$20</button>
-                <button class="bet-button" data-bet="50">R$50</button>
-                <button class="bet-button" data-bet="200">R$200</button>
-                <button class="bet-button" data-bet="400">R$400</button>
+            <div class="bet-controls">
+                <button id="bet-down">-</button>
+                <span class="current-bet-display">1.00</span>
+                <button id="bet-up">+</button>
             </div>
-
-            <div class="action-buttons">
-                <button id="turbo-button">TURBO</button>
-                <button id="spin-button">GIRAR</button>
-                <button id="auto-spin-button">AUTO</button>
-            </div>
+            <button id="spin-button">GIRAR</button>
+            <button id="turbo-button" class="control-button">TURBO</button>
+            <button id="auto-spin-button" class="control-button">AUTO</button>
         </div>
     </div>
 
-    <div class="mega-win-screen" id="mega-win-screen">
-        <div class="mega-win-content">
-            <h2>MEGA GANHO!</h2>
-            <p>Você ganhou:</p>
-            <div class="mega-win-amount" id="mega-win-amount">R$ 0.00</div>
-            <p>(Toque para continuar)</p>
-        </div>
+    <div id="mega-win-screen" class="mega-win-screen">
+        <img id="mega-win-image" src="img/mega_win.png" alt="Mega Ganho!" class="mega-win-image">
+        <div id="mega-win-amount" class="mega-win-amount">R$ 0.00</div>
     </div>
 
     <script src="script.js"></script>
