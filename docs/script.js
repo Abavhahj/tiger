@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const buttonClickSound = new Audio(audioPath + 'button.mp3'); // Certifique-se de ter button.mp3
 
     // Opcional: Ajustar volume
-    spinSound.volume = 0.7;
+    spinSound.volume = 1.0;
     winSound.volume = 0.8;
     loseSound.volume = 0.7;
     buttonClickSound.volume = 0.8;
