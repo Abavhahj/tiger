@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loseSound.volume = 0.7;
     buttonClickSound.volume = 0.5;
     bonusMusic.volume = 0.6;
-    mainMusic.volume = 0.4; // Ajuste conforme preferir
+    mainMusic.volume = 0.2; // Ajuste conforme preferir
 
     // Loop da música principal (se você tiver uma)
     mainMusic.loop = true;
