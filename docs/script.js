@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Lógica do Bônus ---
     function startBonusRound() {
         inBonusRound = true;
-        bonusSpinsLeft = 3; // 3 giros de bônus
+        bonusSpinsLeft = 5; // 5 giros de bônus
         showMessage("🎉 BÔNUS ATIVADO! 🎉 Prepare-se para o Fortune Tiger!");
         
         // Para a música principal e toca a música de bônus
