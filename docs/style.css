@@ -4,83 +4,101 @@ body {
     align-items: center;
     min-height: 100vh;
     margin: 0;
-    background-color: #333;
+    background: linear-gradient(to right, #ff8c00, #ff4500); /* Fundo laranja vibrante */
     font-family: 'Arial', sans-serif;
     color: #eee;
     overflow: hidden; /* Evita barras de rolagem indesejadas */
 }
 
 .game-container {
-    background-color: #222;
-    border: 5px solid #555;
-    border-radius: 15px;
-    padding: 20px;
+    background-color: #2c3e50; /* Azul escuro principal */
+    border: 5px solid #f39c12; /* Borda laranja/dourada */
+    border-radius: 20px;
+    padding: 25px;
     text-align: center;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    max-width: 90vw; /* Ajuste para telas menores */
-    width: 400px; /* Largura padrão */
-    box-sizing: border-box; /* Inclui padding e borda na largura total */
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+    max-width: 95vw; /* Ajuste para telas menores */
+    width: 450px; /* Largura padrão um pouco maior */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Espaçamento entre as seções principais */
 }
 
-.game-info {
+.game-header {
+    background-color: #34495e; /* Tom mais claro de azul escuro para o cabeçalho */
+    padding: 15px 20px;
+    border-radius: 15px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+    position: relative; /* Para a versão */
+}
+
+.game-header h1 {
+    color: #FFD700; /* Dourado */
+    font-size: 2.5em;
+    margin: 0 0 15px 0;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+.game-info-line {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
-    width: 100%;
-    margin-bottom: 20px;
-    position: relative; /* Para posicionar a versão */
+    margin-bottom: 10px;
 }
 
 .balance, .bet {
-    font-size: 1.2em;
+    font-size: 1.3em;
     font-weight: bold;
     color: #FFD700; /* Dourado */
+    background-color: #1a252f; /* Fundo escuro para os valores */
+    padding: 8px 15px;
+    border-radius: 8px;
+    min-width: 120px; /* Garante que tenham largura suficiente */
 }
 
-/* NOVO: Estilo para o número da versão */
+/* Estilo para o número da versão */
 .version {
-    font-size: 0.8em;
-    color: #aaa;
+    font-size: 0.7em;
+    color: #99aab5; /* Cinza claro */
     position: absolute;
-    bottom: -15px; /* Ajuste a posição conforme o layout desejado */
-    right: 5px;
+    bottom: 5px;
+    right: 15px;
 }
-
 
 .reels-container {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    background-color: #111;
-    border: 3px solid #444;
-    border-radius: 10px;
+    background-color: #1a252f; /* Fundo das bobinas */
+    border: 3px solid #f1c40f; /* Borda dourada */
+    border-radius: 12px;
     padding: 10px;
-    margin-bottom: 20px;
-    height: 120px; /* Altura fixa para as bobinas */
-    overflow: hidden; /* Garante que os símbolos não "vazem" */
+    height: 130px; /* Altura fixa para as bobinas */
+    overflow: hidden;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
 }
 
 .reel {
-    width: 100px; /* Largura de cada bobina */
+    width: 110px; /* Largura de cada bobina */
     height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 3em; /* Tamanho dos símbolos */
-    background-color: #0a0a0a;
-    border-radius: 8px;
-    overflow: hidden; /* Importante para a animação de giro */
+    font-size: 3.5em; /* Tamanho dos símbolos */
+    background-color: #0d151d; /* Fundo mais escuro para o interior da bobina */
+    border-radius: 10px;
+    overflow: hidden;
     box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.7);
 }
 
 .symbol {
-    /* Estilos básicos para o símbolo dentro do reel */
-    transition: transform 0.05s ease-out; /* Transição suave para o "giro" visual */
+    transition: transform 0.05s ease-out;
 }
 
 /* Animação para o giro rápido (aparece/desaparece) */
 .symbol.animating {
-    animation: spin-blur 0.1s infinite alternate; /* Animação rápida para simular blur */
+    animation: spin-blur 0.1s infinite alternate;
 }
 
 @keyframes spin-blur {
@@ -94,12 +112,309 @@ body {
     }
 }
 
-
 .message {
-    background-color: #444;
-    padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    min-height: 40px; /* Garante espaço para a mensagem */
+    background-color: #34495e; /* Fundo da mensagem */
+    padding: 12px;
+    border-radius: 10px;
+    min-height: 45px;
     display: flex;
     align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+    color: #ecf0f1; /* Branco levemente acinzentado */
+    font-weight: bold;
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Botões de Aposta Pré-definidos */
+.bet-buttons {
+    display: flex;
+    justify-content: space-around; /* Distribui os botões uniformemente */
+    flex-wrap: wrap;
+    gap: 10px; /* Espaçamento entre os botões */
+    background-color: #34495e;
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.bet-button {
+    background-color: #2ecc71; /* Verde primário */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    transition: background-color 0.2s, transform 0.1s;
+    min-width: 70px;
+    flex-grow: 1; /* Permite que os botões se expandam um pouco */
+}
+
+.bet-button:hover:not(:disabled) {
+    background-color: #27ae60; /* Verde mais escuro no hover */
+    transform: translateY(-2px);
+}
+
+.bet-button:disabled {
+    background-color: #7f8c8d; /* Cinza para desabilitado */
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.bet-button.active-bet {
+    background-color: #f39c12; /* Laranja/Dourado para a aposta ativa */
+    color: #2c3e50; /* Texto azul escuro */
+    border: 2px solid #e67e22; /* Borda mais escura */
+    box-shadow: 0 0 10px rgba(243, 156, 18, 0.7);
+    transform: scale(1.05); /* Pequeno aumento para destacar */
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: space-around;
+    gap: 15px; /* Espaçamento maior entre os botões de ação */
+    background-color: #34495e;
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+button { /* Estilo base para todos os botões de ação */
+    background-color: #3498db; /* Azul vibrante */
+    color: white;
+    padding: 15px 25px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.2em;
+    font-weight: bold;
+    transition: background-color 0.2s, transform 0.1s;
+    flex-grow: 1;
+    text-transform: uppercase;
+}
+
+button:hover:not(:disabled) {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+}
+
+button:disabled {
+    background-color: #7f8c8d;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+#spin-button {
+    background-color: #e74c3c; /* Vermelho forte para o Spin */
+    order: 2; /* Posiciona o botão GIRAR no meio */
+}
+
+#spin-button:hover:not(:disabled) {
+    background-color: #c0392b;
+}
+
+#turbo-button {
+    order: 1; /* Posiciona o botão TURBO à esquerda */
+}
+
+#auto-spin-button {
+    order: 3; /* Posiciona o botão AUTO à direita */
+}
+
+#turbo-button.active,
+#auto-spin-button.active {
+    background-color: #27ae60; /* Verde escuro para ativo */
+    box-shadow: 0 0 10px rgba(46, 204, 113, 0.7);
+}
+
+#turbo-button.active:hover:not(:disabled),
+#auto-spin-button.active:hover:not(:disabled) {
+    background-color: #2ecc71;
+}
+
+/* --- Mega Win Screen --- */
+.mega-win-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    flex-direction: column;
+}
+
+.mega-win-screen.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.mega-win-content {
+    background-color: #333;
+    border: 5px solid #FFD700; /* Borda dourada */
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.7); /* Brilho dourado */
+    animation: pulse 1.5s infinite alternate; /* Efeito de pulsação */
+    max-width: 90%;
+}
+
+.mega-win-content h2 {
+    color: #FFD700;
+    font-size: 3em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.mega-win-content p {
+    font-size: 1.5em;
+    color: #eee;
+    margin-bottom: 15px;
+}
+
+.mega-win-amount {
+    font-size: 4em;
+    font-weight: bold;
+    color: #00FF00; /* Verde vibrante para o valor */
+    text-shadow: 3px 3px 7px rgba(0, 150, 0, 0.7);
+    margin-bottom: 20px;
+    animation: bounceIn 0.8s ease-out; /* Animação de entrada do valor */
+}
+
+/* Animação de pulsação para o container do Mega Ganho */
+@keyframes pulse {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.02);
+    }
+}
+
+/* Animação de entrada para o valor do Mega Ganho */
+@keyframes bounceIn {
+    0%, 20%, 40%, 60%, 80%, 100% {
+        transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+    }
+    0% {
+        opacity: 0;
+        transform: scale3d(.3, .3, .3);
+    }
+    20% {
+        transform: scale3d(1.1, 1.1, 1.1);
+    }
+    40% {
+        transform: scale3d(.9, .9, .9);
+    }
+    60% {
+        opacity: 1;
+        transform: scale3d(1.03, 1.03, 1.03);
+    }
+    80% {
+        transform: scale3d(.97, .97, .97);
+    }
+    100% {
+        opacity: 1;
+        transform: scale3d(1, 1, 1);
+    }
+}
+
+
+/* --- Media Queries para Responsividade --- */
+@media (max-width: 600px) {
+    .game-container {
+        padding: 15px;
+        border-radius: 15px;
+        width: 98vw; /* Ocupa quase toda a largura em telas pequenas */
+        gap: 15px;
+    }
+
+    .game-header {
+        padding: 10px 15px;
+    }
+    .game-header h1 {
+        font-size: 2em;
+    }
+
+    .game-info-line {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .balance, .bet {
+        font-size: 1.1em;
+        width: 100%; /* Ocupa toda a largura disponível */
+    }
+
+    .version {
+        position: static; /* Volta para o fluxo normal em telas pequenas */
+        margin-top: 5px;
+        text-align: right;
+        width: 100%;
+    }
+
+    .reels-container {
+        padding: 8px;
+        height: 110px;
+    }
+
+    .reel {
+        width: 90px;
+        font-size: 3em;
+    }
+
+    .message {
+        font-size: 1em;
+        min-height: 40px;
+    }
+
+    .bet-buttons {
+        gap: 8px;
+        padding: 10px;
+    }
+
+    .bet-button {
+        padding: 8px 10px;
+        font-size: 0.9em;
+        min-width: unset; /* Remove min-width para melhor ajuste */
+        flex-basis: calc(33.33% - 8px); /* 3 botões por linha */
+    }
+
+    .action-buttons {
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .action-buttons button {
+        padding: 12px 18px;
+        font-size: 1.1em;
+    }
+
+    .mega-win-content {
+        padding: 20px;
+    }
+    .mega-win-content h2 {
+        font-size: 2.5em;
+    }
+    .mega-win-content p {
+        font-size: 1.3em;
+    }
+    .mega-win-amount {
+        font-size: 3.5em;
+    }
+}
