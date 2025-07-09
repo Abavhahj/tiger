@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let balance = 100.00;
     let currentBet = 1.00;
     const minBet = 0.50;
-    const maxBet = 10.00;
+    const maxBet = 100.00;
     const betStep = 0.50;
 
     // --- Configuração de Áudio ---
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     spinSound.volume = 0.7;
     winSound.volume = 0.8;
     loseSound.volume = 0.7;
-    buttonClickSound.volume = 0.5;
+    buttonClickSound.volume = 0.8;
 
     // Símbolos: Nome (para referência), Display (o que aparece), Multiplicador
     const symbols = [
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Animação de giro (simulada)
         let spinCount = 0;
-        const maxSpins = 20; // Número de "quadros" para a animação
+        const maxSpins = 87; // Número de "quadros" para a animação
         const spinInterval = setInterval(() => {
             renderSymbol(reel1, getRandomSymbol());
             renderSymbol(reel2, getRandomSymbol());
