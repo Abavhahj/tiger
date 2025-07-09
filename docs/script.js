@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Animação de giro (simulada)
         let spinCount = 0;
-        const maxSpins = 87; // Número de "quadros" para a animação
+        const maxSpins = 38; // Número de "quadros" para a animação
         const spinInterval = setInterval(() => {
             renderSymbol(reel1, getRandomSymbol());
             renderSymbol(reel2, getRandomSymbol());
