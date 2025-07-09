@@ -7,31 +7,32 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="game-container">
-        <h1>🐯 Fortune Tiger 🐯</h1>
+    <div class="container">
+        <h1>Fortune Tiger 🐯</h1>
 
-        <div class="slot-machine">
+        <div class="game-info">
+            <p>Saldo: R$ <span id="balance-value">100.00</span></p>
+            <p>Aposta: R$ <span id="bet-value">1.00</span></p>
+        </div>
+
+        <div class="reels-container">
             <div class="reel" id="reel1"></div>
             <div class="reel" id="reel2"></div>
             <div class="reel" id="reel3"></div>
         </div>
 
+        <div class="message-display" id="message"></div>
+
         <div class="controls">
-    <div class="bet-controls">
-        <button id="bet-down">-</button>
-        <span id="bet-value">1.00</span>
-        <button id="bet-up">+</button>
-    </div>
-    <button id="spin-button">GIRAR</button>
-    <button id="turbo-button" class="control-button">TURBO</button>
-    <button id="auto-spin-button" class="control-button">AUTO</button>
-</div>
-
-
-            <button id="spin-button">GIRAR!</button>
+            <div class="bet-controls">
+                <button id="bet-down">-</button>
+                <span id="bet-value">1.00</span>
+                <button id="bet-up">+</button>
+            </div>
+            <button id="spin-button">GIRAR</button>
+            <button id="turbo-button" class="control-button">TURBO</button>
+            <button id="auto-spin-button" class="control-button">AUTO</button>
         </div>
-
-        <div class="message" id="message"></div>
     </div>
 
     <script src="script.js"></script>
