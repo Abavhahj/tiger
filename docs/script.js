@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const betValue = document.getElementById('bet-value');
     const betDownButton = document.getElementById('bet-down');
     const betUpButton = document.getElementById('bet-up');
-    const spinButton = document.getElementById('spin-button'); // ÚNICO BOTÃO GIRAR
+    const spinButton = document.getElementById('spin-button');
     const messageDisplay = document.getElementById('message');
     const turboButton = document.getElementById('turbo-button');
     const autoSpinButton = document.getElementById('auto-spin-button');
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loseSound = new Audio(audioPath + 'lose.mp3');
     const buttonClickSound = new Audio(audioPath + 'button.mp3');
     const bonusMusic = new Audio(audioPath + 'bonus_music.mp3');
-    const mainMusic = new Audio(audioPath + 'main_music.mp3'); 
+    const mainMusic = new Audio(audioPath + 'main_music.mp3'); // Opcional: Música de fundo principal
 
     // Configurações de volume
     spinSound.volume = 0.7;
@@ -41,16 +41,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Variáveis do Bônus ---
     let inBonusRound = false;
     let bonusSpinsLeft = 0;
-    const bonusChance = 0.05; 
+    const bonusChance = 0.05; // 5% de chance de ativar o bônus a cada giro
     const bonusSymbol = { name: 'wild', display: '🐯', multiplier: 50 };
-    const bonusMultiplier = 50; 
+    const bonusMultiplier = 50;
 
     // --- Variáveis de Turbo e Auto-Spin ---
     let isTurboMode = false;
     let isAutoSpin = false;
-    let autoSpinIntervalId = null;
-    let spinDuration = 3040; 
-    let turboSpinDuration = 1000; 
+    let spinDuration = 3040; // Duração normal do spin em ms (38 * 80)
+    let turboSpinDuration = 1000; // Duração do spin em modo turbo em ms
 
     // Símbolos
     const symbols = [
@@ -66,11 +65,11 @@ document.addEventListener('DOMContentLoaded', () => {
         balanceValue.textContent = balance.toFixed(2);
         betValue.textContent = currentBet.toFixed(2);
 
-        const disableAllControls = inBonusRound || isAutoSpin;
+        const disableSpinAndBet = inBonusRound || isAutoSpin;
 
-        spinButton.disabled = disableAllControls || balance < currentBet;
-        betDownButton.disabled = disableAllControls;
-        betUpButton.disabled = disableAllControls;
+        spinButton.disabled = disableSpinAndBet || balance < currentBet;
+        betDownButton.disabled = disableSpinAndBet;
+        betUpButton.disabled = disableSpinAndBet;
 
         // Botões Turbo e Auto não devem ser desabilitados pelo auto-spin ou bônus, apenas controlados
         // Eles são desabilitados apenas durante o bônus para evitar mudanças de modo no meio
@@ -113,11 +112,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Função principal de giro
     function performSpin() {
+        // Se estiver em auto-spin, verifica se ainda há saldo para apostar
         if (!inBonusRound && balance < currentBet) {
             showMessage("Saldo insuficiente para apostar!");
-            stopAutoSpin();
+            stopAutoSpin(); // Para auto-spin se o saldo acabar
             return;
         }
+        // Se não estiver em bônus (que não desconta a aposta), subtrai a aposta
         if (!inBonusRound) {
             balance -= currentBet;
         }
@@ -153,15 +154,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     checkBonusWin(results);
                 } else {
                     checkWin(results);
+                    // Chance de ativar o bônus após um giro normal
                     if (Math.random() < bonusChance) {
                         startBonusRound();
                     }
                 }
-                spinButton.disabled = false; 
-                if (!inBonusRound && mainMusic) mainMusic.play(); 
+                spinButton.disabled = false; // Habilita o botão novamente
+                if (!inBonusRound && mainMusic) mainMusic.play(); // Retoma música principal se não estiver em bônus
 
+                // Se estiver em auto-spin e não em bônus, gira novamente após um pequeno atraso
                 if (isAutoSpin && !inBonusRound) {
-                    setTimeout(performSpin, 500); 
+                    setTimeout(performSpin, 500); // Pequeno atraso entre giros automáticos
                 }
             }
         }, intervalStep);
@@ -176,34 +179,40 @@ document.addEventListener('DOMContentLoaded', () => {
         const s2 = results[1];
         const s3 = results[2];
 
+        // Condições de vitória (mesmas do Fortune Tiger real)
         if (s1.name === s2.name && s2.name === s3.name) {
             winAmount = s1.multiplier * currentBet;
             message = `🎉 TRIO DE ${s1.display}! Você ganhou R$ ${winAmount.toFixed(2)}! 🎉`;
         }
-        else if (s1.name === 'wild' && s2.name === s3.name) {
+        // Wild no primeiro, outros dois iguais
+        else if (s1.name === 'wild' && s2.name === s3.name && s2.name !== 'wild') {
             winAmount = s2.multiplier * currentBet * 1.5;
             message = `🎉 WILD com ${s2.display}! Você ganhou R$ ${winAmount.toFixed(2)}! 🎉`;
         }
-        else if (s2.name === 'wild' && s1.name === s3.name) {
+        // Wild no meio, outros dois iguais
+        else if (s2.name === 'wild' && s1.name === s3.name && s1.name !== 'wild') {
             winAmount = s1.multiplier * currentBet * 1.5;
             message = `🎉 WILD com ${s1.display}! Você ganhou R$ ${winAmount.toFixed(2)}! 🎉`;
         }
-        else if (s3.name === 'wild' && s1.name === s2.name) {
+        // Wild no último, outros dois iguais
+        else if (s3.name === 'wild' && s1.name === s2.name && s1.name !== 'wild') {
             winAmount = s1.multiplier * currentBet * 1.5;
             message = `🎉 WILD com ${s1.display}! Você ganhou R$ ${winAmount.toFixed(2)}! 🎉`;
         }
-        else if (s1.name === 'wild' && s2.name === 'wild') {
+        // Dois wilds e um símbolo diferente
+        else if (s1.name === 'wild' && s2.name === 'wild' && s3.name !== 'wild') {
             winAmount = s3.multiplier * currentBet * 2;
             message = `🤩 DOIS WILDS com ${s3.display}! Você ganhou R$ ${winAmount.toFixed(2)}! 🤩`;
         }
-        else if (s1.name === 'wild' && s3.name === 'wild') {
+        else if (s1.name === 'wild' && s3.name === 'wild' && s2.name !== 'wild') {
             winAmount = s2.multiplier * currentBet * 2;
             message = `🤩 DOIS WILDS com ${s2.display}! Você ganhou R$ ${winAmount.toFixed(2)}! 🤩`;
         }
-        else if (s2.name === 'wild' && s3.name === 'wild') {
+        else if (s2.name === 'wild' && s3.name === 'wild' && s1.name !== 'wild') {
             winAmount = s1.multiplier * currentBet * 2;
             message = `🤩 DOIS WILDS com ${s1.display}! Você ganhou R$ ${winAmount.toFixed(2)}! 🤩`;
         }
+        // Três Wilds (Jackpot)
         else if (s1.name === 'wild' && s2.name === 'wild' && s3.name === 'wild') {
             winAmount = symbols.find(s => s.name === 'wild').multiplier * currentBet * 3;
             message = `👑 FORTUNE TIGER! VOCÊ GANHOU O JACKPOT DE R$ ${winAmount.toFixed(2)}! 👑`;
@@ -234,6 +243,8 @@ document.addEventListener('DOMContentLoaded', () => {
         bonusMusic.play();
 
         updateDisplay();
+        // Inicia o primeiro giro do bônus
+        setTimeout(performSpin, 1000); // Pequeno delay para a música do bônus começar
     }
 
     function checkBonusWin(results) {
@@ -244,6 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const s2 = results[1];
         const s3 = results[2];
 
+        // Condição de vitória do bônus: todas as 3 bobinas com o símbolo de bônus
         if (s1.name === bonusSymbol.name && s2.name === bonusSymbol.name && s3.name === bonusSymbol.name) {
             bonusWinAmount = currentBet * bonusMultiplier;
             message = `🏆 FORTUNE TIGER COMPLETO! Você ganhou R$ ${bonusWinAmount.toFixed(2)}! 🏆`;
@@ -262,6 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showMessage(message);
         updateDisplay();
 
+        // Se ainda houver giros de bônus, gira novamente após um pequeno atraso
         if (inBonusRound && bonusSpinsLeft > 0) {
             setTimeout(performSpin, 500);
         }
@@ -273,12 +286,13 @@ document.addEventListener('DOMContentLoaded', () => {
         showMessage("Bônus Encerrado. Boa sorte no próximo giro!");
 
         bonusMusic.pause();
+        bonusMusic.currentTime = 0; // Reinicia a música do bônus para a próxima vez
         if (mainMusic) mainMusic.play();
         updateDisplay();
     }
 
     // --- Event Listeners para Botões ---
-    spinButton.addEventListener('click', performSpin); // Chama a função performSpin
+    spinButton.addEventListener('click', performSpin);
 
     betDownButton.addEventListener('click', () => {
         buttonClickSound.currentTime = 0;
@@ -303,8 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
         buttonClickSound.currentTime = 0;
         buttonClickSound.play();
         isTurboMode = !isTurboMode; // Alterna o modo turbo
-        // A mensagem "Modo TURBO ativado/desativado" agora será exibida no próprio botão via updateDisplay()
-        updateDisplay(); 
+        updateDisplay();
     });
 
     // --- Lógica de Auto Spin ---
@@ -324,18 +337,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         isAutoSpin = true;
-        // A mensagem "Auto Spin ativado" agora será exibida no próprio botão via updateDisplay()
         updateDisplay();
         performSpin(); // Inicia o primeiro giro automático
     }
 
     function stopAutoSpin() {
         isAutoSpin = false;
-        // A mensagem "Auto Spin desativado" agora será exibida no próprio botão via updateDisplay()
         updateDisplay();
     }
 
-    // Exibe mensagens temporárias (agora mais para mensagens de jogo, não status de modo)
+    // Exibe mensagens temporárias na área de mensagem
     function showMessage(msg) {
         messageDisplay.textContent = msg;
     }
@@ -343,6 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Inicialização do Jogo ---
     playMainMusic();
 
+    // Renderiza símbolos iniciais e atualiza o display
     renderSymbol(reel1, getRandomSymbol());
     renderSymbol(reel2, getRandomSymbol());
     renderSymbol(reel3, getRandomSymbol());
