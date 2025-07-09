@@ -137,3 +137,54 @@ button:disabled {
     font-weight: bold;
     color: #FFD700;
 }
+
+/* Estilos para os novos botões de controle */
+.control-button {
+    background-color: #4CAF50; /* Verde */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    margin-top: 10px; /* Espaço acima dos botões */
+    transition: background-color 0.3s ease;
+    width: 80px; /* Largura fixa para alinhamento */
+    text-align: center;
+}
+
+.control-button:hover {
+    background-color: #45a049;
+}
+
+.control-button:active {
+    background-color: #3e8e41;
+    transform: translateY(1px);
+}
+
+.control-button.active { /* Estilo para quando o modo turbo/auto estiver ativo */
+    background-color: #e0d000; /* Amarelo */
+    color: #333;
+}
+
+.control-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+/* Ajuste para alinhar os botões de controle horizontalmente */
+.controls {
+    display: flex;
+    flex-direction: column; /* Coloca os elementos em coluna */
+    align-items: center; /* Centraliza horizontalmente */
+    gap: 10px; /* Espaço entre os elementos */
+    margin-top: 20px;
+}
+
+/* Ajusta a aposta e o botão de girar para ficarem na mesma linha */
+.bet-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
