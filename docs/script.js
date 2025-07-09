@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const buttonClickSound = new Audio(audioPath + 'button.mp3');
     const bonusMusic = new Audio(audioPath + 'bonus_music.mp3');
     const mainMusic = new Audio(audioPath + 'main_music.mp3'); 
-    const megaWinSound = new Audio(audioPath + 'mega_win_sound.mp3'); // NOVO SOM
+    const megaWinSound = new Audio(audioPath + 'mega_win_sound.mp3');
 
     // Configurações de volume
     spinSound.volume = 0.7;
@@ -40,11 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
     buttonClickSound.volume = 0.5;
     bonusMusic.volume = 0.6;
     mainMusic.volume = 0.2;
-    megaWinSound.volume = 0.8; // Volume para o som de mega ganho
+    megaWinSound.volume = 0.8;
 
     mainMusic.loop = true;
     bonusMusic.loop = true;
-    // megaWinSound.loop = false; // Som de mega ganho não deve repetir
+    megaWinSound.loop = true; // O som de mega ganho repete até ser fechado
 
     // --- Variáveis do Bônus ---
     let inBonusRound = false;
@@ -58,7 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let isAutoSpin = false;
     let spinDuration = 3040; // Duração normal do spin em ms (38 * 80)
     let turboSpinDuration = 1000; // Duração do spin em modo turbo em ms
-    let isMegaWinAnimating = false; // NOVO: Flag para controlar se a animação de mega ganho está ativa
+    let isMegaWinAnimating = false; // Flag para controlar se a animação de mega ganho está ativa
+    let megaWinTimeoutId; // NOVO: ID para o setTimeout do Mega Ganho
 
     // Símbolos
     const symbols = [
@@ -237,8 +238,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Lógica para Mega Ganho
             if (winAmount >= (currentBet * 8) && winAmount >= 50) { // 8x a aposta E mínimo de R$50
+                console.log("Condições para Mega Ganho atendidas! Chamando showMegaWin(). Ganho:", winAmount.toFixed(2), "Aposta:", currentBet.toFixed(2));
                 showMegaWin(winAmount);
             } else {
+                console.log("Condições para Mega Ganho NÃO atendidas. Ganho:", winAmount.toFixed(2), "Aposta:", currentBet.toFixed(2), "Multiplicador de ganho:", (winAmount / currentBet).toFixed(2));
                 showMessage(message);
             }
         } else {
@@ -282,8 +285,10 @@ document.addEventListener('DOMContentLoaded', () => {
             winSound.play();
             // Lógica para Mega Ganho no bônus
             if (bonusWinAmount >= (currentBet * 8) && bonusWinAmount >= 50) {
+                console.log("Condições para Mega Ganho (Bônus) atendidas! Chamando showMegaWin(). Ganho:", bonusWinAmount.toFixed(2), "Aposta:", currentBet.toFixed(2));
                 showMegaWin(bonusWinAmount, true); // true indica que é do bônus, para encerrá-lo depois
             } else {
+                console.log("Condições para Mega Ganho (Bônus) NÃO atendidas. Ganho:", bonusWinAmount.toFixed(2), "Aposta:", currentBet.toFixed(2), "Multiplicador de ganho:", (bonusWinAmount / currentBet).toFixed(2));
                 endBonusRound(); // Termina o bônus imediatamente se ganhar, mas não foi mega
             }
         } else {
@@ -345,8 +350,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 clearInterval(animationInterval);
                 animationInterval = null; // Limpa o intervalo
                 
-                // Finaliza a animação após um pequeno atraso para o usuário ver o valor final
-                setTimeout(() => hideMegaWin(fromBonus), 2000); // Exibe por 2 segundos após o fim da contagem
+                // NOVO: Define um timeout para esconder a tela após 30 segundos, se não for clicado
+                megaWinTimeoutId = setTimeout(() => hideMegaWin(fromBonus), 30000); 
             }
             megaWinAmountDisplay.textContent = `R$ ${currentCountedAmount.toFixed(2)}`;
         }, duration / steps);
@@ -363,6 +368,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function skipMegaWin() {
+        // Limpa o timeout de auto-fechamento do Mega Ganho se ele estiver ativo
+        if (megaWinTimeoutId) {
+            clearTimeout(megaWinTimeoutId);
+            megaWinTimeoutId = null;
+        }
+
         if (animationInterval) {
             clearInterval(animationInterval);
             animationInterval = null;
@@ -370,8 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentCountedAmount = targetMegaWinAmount; // Seta o valor direto
         megaWinAmountDisplay.textContent = `R$ ${targetMegaWinAmount.toFixed(2)}`;
         
-        // Finaliza a animação mais rapidamente após pular
-        setTimeout(() => hideMegaWin(finishMegaWinCallback !== null), 500); // 0.5 segundos após o clique
+        hideMegaWin(finishMegaWinCallback !== null); // Chama hideMegaWin imediatamente
     }
 
     function hideMegaWin(wasBonusRound) {
@@ -379,6 +389,12 @@ document.addEventListener('DOMContentLoaded', () => {
         isMegaWinAnimating = false;
         megaWinSound.pause(); // Para o som do mega ganho
         megaWinSound.currentTime = 0;
+
+        // Garante que qualquer timeout pendente seja limpo
+        if (megaWinTimeoutId) {
+            clearTimeout(megaWinTimeoutId);
+            megaWinTimeoutId = null;
+        }
 
         if (wasBonusRound && finishMegaWinCallback) {
             finishMegaWinCallback(); // Chama o callback para encerrar o bônus
