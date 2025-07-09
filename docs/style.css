@@ -62,13 +62,17 @@ h1 {
 }
 
 .reel .symbol {
-    animation: spin-animation 0.08s linear infinite; /* Animação de giro */
     width: 100%;
     height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
     transform: translateY(0); /* Estado inicial */
+}
+
+/* Animação para o giro visual - Aplicada apenas quando a classe 'animating' está presente */
+.reel .symbol.animating {
+    animation: spin-animation 0.08s linear infinite;
 }
 
 /* Mensagens no centro da tela */
@@ -83,7 +87,6 @@ h1 {
     align-items: center;
     justify-content: center;
 }
-
 
 /* Controles */
 .controls {
