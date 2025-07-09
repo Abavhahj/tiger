@@ -16,9 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const megaWinScreen = document.getElementById('mega-win-screen');
     const megaWinAmountDisplay = document.getElementById('mega-win-amount');
     
-    let balance = 100.00;
-    let currentBet = 1.00;
-    const minBet = 1.00;
+    let balance = 1000.00;
+    let currentBet = 5.00;
+    const minBet = 5.00;
     const maxBet = 40000.00;
     const betStep = 50.00;
 
