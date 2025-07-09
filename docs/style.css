@@ -1,144 +1,163 @@
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: Arial, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     margin: 0;
-    background: linear-gradient(to right, #FF4500, #FF8C00); /* Tons de laranja e vermelho */
-    color: white;
+    background: linear-gradient(to right, #ff8c00, #ff4500); /* Laranja vibrante */
+    color: #fff;
     overflow: hidden; /* Evita barras de rolagem */
-    -webkit-tap-highlight-color: transparent; /* Remove o destaque azul ao tocar em iOS */
 }
 
-.game-container {
-    background-color: #2c0a0a; /* Fundo escuro para contraste */
-    padding: 20px;
+.container {
+    background-color: #2c3e50; /* Azul escuro quase preto */
+    padding: 25px;
     border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
     text-align: center;
-    width: 90%; /* Ocupa a maior parte da largura no celular */
-    max-width: 400px; /* Limite para telas maiores */
-    box-sizing: border-box;
+    width: 90%;
+    max-width: 380px; /* Mais adequado para mobile */
+    box-sizing: border-box; /* Inclui padding e border no width */
+    border: 4px solid #ffd700; /* Borda dourada */
 }
 
 h1 {
-    color: #FFD700; /* Dourado */
+    color: #ffd700; /* Dourado */
     margin-bottom: 20px;
-    font-size: 2em;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    font-size: 1.8em;
 }
 
-.slot-machine {
+.game-info {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+    font-weight: bold;
+    background-color: #1a252f; /* Fundo mais escuro para info */
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #444;
+}
+
+.reels-container {
     display: flex;
     justify-content: center;
     gap: 10px; /* Espaço entre as bobinas */
-    margin-bottom: 20px;
-    background-color: #000;
-    padding: 10px;
-    border-radius: 10px;
-    border: 3px solid #FFD700;
+    margin-bottom: 25px;
 }
 
 .reel {
-    width: 80px; /* Largura da bobina */
-    height: 90px; /* Altura da bobina para um símbolo */
-    background-color: #1a1a1a;
-    border: 2px solid #555;
-    border-radius: 5px;
+    width: 90px; /* Largura da bobina */
+    height: 90px; /* Altura da bobina */
+    background-color: #34495e; /* Azul médio */
+    border: 3px solid #ffd700; /* Borda dourada */
+    border-radius: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 3em; /* Tamanho do símbolo */
-    color: #eee;
-    overflow: hidden; /* Garante que apenas um símbolo seja visível por vez */
-    transition: background-position 0.1s ease-in-out;
+    overflow: hidden; /* Garante que o símbolo não escape */
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5);
 }
 
-/* Estilos para os símbolos dentro das bobinas (serão adicionados via JS) */
 .reel .symbol {
+    animation: spin-animation 0.08s linear infinite; /* Animação de giro */
     width: 100%;
     height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-size: cover;
-    background-position: center;
-    color: #FFD700; /* Cor padrão para os símbolos */
+    transform: translateY(0); /* Estado inicial */
 }
-/* Cores específicas para alguns símbolos */
-.symbol-cherry { background-color: #c93; } /* Cereja */
-.symbol-bell { background-color: #3c9; }   /* Sino */
-.symbol-bar { background-color: #93c; }    /* Bar */
-.symbol-7 { background-color: #f00; }      /* Sete */
-.symbol-wild { background-color: #FFD700; } /* Wild (Tigre) */
+
+/* Mensagens no centro da tela */
+.message-display {
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 8px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+    min-height: 25px; /* Garante um espaço para a mensagem */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
 
+/* Controles */
 .controls {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 15px;
+    flex-direction: column; /* Coloca os elementos em coluna */
+    align-items: center; /* Centraliza horizontalmente */
+    gap: 10px; /* Espaço entre os elementos */
+    margin-top: 20px;
 }
 
-.balance, .bet-control {
-    background-color: #440c0c;
-    padding: 10px;
-    border-radius: 8px;
-    font-size: 1.1em;
+.bet-controls {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 5px;
+    background-color: #1a252f;
+    padding: 8px 15px;
+    border-radius: 8px;
+    border: 1px solid #444;
 }
 
-/* Estilos gerais para todos os botões para melhorar o toque */
-button {
-    background-color: #FFD700;
-    color: #2c0a0a;
+.bet-controls button {
+    background-color: #e67e22; /* Laranja */
+    color: white;
     border: none;
-    border-radius: 5px;
-    font-size: 1.2em;
+    border-radius: 50%; /* Botão redondo */
+    width: 35px;
+    height: 35px;
+    font-size: 1.5em;
     cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
-    touch-action: manipulation; /* **CHAVE AQUI: Otimiza a resposta ao toque** */
-    -webkit-touch-callout: none; /* Desabilita o menu de contexto ao tocar e segurar em iOS */
-    -webkit-user-select: none; /* Desabilita a seleção de texto em iOS */
-    user-select: none; /* Desabilita a seleção de texto */
+    transition: background-color 0.2s ease;
 }
 
-button:hover {
-    background-color: #e6c200;
+.bet-controls button:hover {
+    background-color: #d35400;
 }
 
-button:active {
-    transform: scale(0.98);
-}
-
-button:disabled {
-    background-color: #888;
-    cursor: not-allowed;
-}
-
-.bet-control button {
-    padding: 8px 15px; /* Aumento do padding para melhor área de toque */
-    font-size: 1.3em; /* Aumento da fonte para melhor legibilidade */
+.bet-controls span {
+    font-size: 1.4em;
+    font-weight: bold;
+    margin: 0 10px;
+    color: #ffd700;
 }
 
 #spin-button {
-    padding: 18px 35px; /* Aumento do padding para melhor área de toque */
-    font-size: 1.6em; /* Aumento da fonte para melhor legibilidade */
+    background-color: #ffd700; /* Dourado */
+    color: #333;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.5em;
     font-weight: bold;
-    width: 100%;
-}
-
-.message {
     margin-top: 15px;
-    font-size: 1.2em;
-    font-weight: bold;
-    color: #FFD700;
+    transition: background-color 0.3s ease;
+    width: 180px; /* Ajusta largura */
 }
 
-/* Estilos para os novos botões de controle */
+#spin-button:hover {
+    background-color: #e0b800;
+}
+
+#spin-button:active {
+    background-color: #ccaa00;
+    transform: translateY(2px);
+}
+
+#spin-button:disabled,
+.bet-controls button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Estilos para os novos botões de controle (TURBO, AUTO) */
 .control-button {
     background-color: #4CAF50; /* Verde */
     color: white;
@@ -148,9 +167,9 @@ button:disabled {
     cursor: pointer;
     font-size: 1em;
     font-weight: bold;
-    margin-top: 10px; /* Espaço acima dos botões */
+    margin-top: 10px;
     transition: background-color 0.3s ease;
-    width: 80px; /* Largura fixa para alinhamento */
+    width: 180px; /* Largura fixa para alinhamento */
     text-align: center;
 }
 
@@ -164,27 +183,18 @@ button:disabled {
 }
 
 .control-button.active { /* Estilo para quando o modo turbo/auto estiver ativo */
-    background-color: #e0d000; /* Amarelo */
+    background-color: #00bcd4; /* Azul Claro para indicar ativo */
     color: #333;
 }
 
 .control-button:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
+    opacity: 0.7;
 }
 
-/* Ajuste para alinhar os botões de controle horizontalmente */
-.controls {
-    display: flex;
-    flex-direction: column; /* Coloca os elementos em coluna */
-    align-items: center; /* Centraliza horizontalmente */
-    gap: 10px; /* Espaço entre os elementos */
-    margin-top: 20px;
-}
-
-/* Ajusta a aposta e o botão de girar para ficarem na mesma linha */
-.bet-controls {
-    display: flex;
-    align-items: center;
-    gap: 5px;
+/* Animação para o giro visual */
+@keyframes spin-animation {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-100%); } /* Simula o símbolo subindo e saindo da vista */
 }
