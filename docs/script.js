@@ -1,16 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
+    console.log("Script loaded and DOM content loaded!"); // Log de verificação inicial
+
     const reel1 = document.getElementById('reel1');
     const reel2 = document.getElementById('reel2');
     const reel3 = document.getElementById('reel3');
     const balanceValue = document.getElementById('balance-value');
     const betValueDisplayInGameInfo = document.getElementById('bet-value');
-    // const betValueDisplayInControls = document.querySelector('.current-bet-display'); // Removido: Este elemento não existe mais no HTML
     const spinButton = document.getElementById('spin-button');
     const messageDisplay = document.getElementById('message');
     const turboButton = document.getElementById('turbo-button');
     const autoSpinButton = document.getElementById('auto-spin-button');
-    const betButtons = document.querySelectorAll('.bet-button'); // Seleciona todos os botões de aposta
-    const versionNumberDisplay = document.getElementById('version-number'); // Elemento da versão
+    const betButtons = document.querySelectorAll('.bet-button');
+    const versionNumberDisplay = document.getElementById('version-number');
 
     // Elementos da tela de Mega Ganho
     const megaWinScreen = document.getElementById('mega-win-screen');
@@ -18,14 +19,15 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- Variáveis do Jogo ---
     let balance = 100.00;
-    let currentBet = 1.00; // Aposta inicial
-    const minBet = 1.00; // Aposta mínima
-    const maxBet = 400.00; // Aposta máxima
-    const VERSION = "0.0.0.1"; // Número da versão
+    let currentBet = 1.00;
+    const minBet = 1.00;
+    const maxBet = 400.00;
+    const VERSION = "0.0.0.1";
 
     // --- Configuração de Áudio ---
     const audioPath = './audio/';
 
+    // Certifique-se de que os arquivos de áudio existem e os caminhos estão corretos
     const spinSound = new Audio(audioPath + 'spin.mp3');
     const winSound = new Audio(audioPath + 'win.mp3');
     const loseSound = new Audio(audioPath + 'lose.mp3');
@@ -50,19 +52,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Variáveis do Bônus ---
     let inBonusRound = false;
     let bonusSpinsLeft = 0;
-    const scatterSymbol = { name: 'coin', display: '💰', multiplier: 0 }; // Símbolo Scatter para ativar o bônus
-    const bonusSymbol = { name: 'wild', display: '🐯', multiplier: 50 }; // Símbolo WILD dentro do bônus
+    const scatterSymbol = { name: 'coin', display: '💰', multiplier: 0 };
+    const bonusSymbol = { name: 'wild', display: '🐯', multiplier: 50 };
     const bonusMultiplier = 50;
-    let isFirstBonusSpin = false; // Flag para o primeiro giro do bônus
+    let isFirstBonusSpin = false;
 
     // --- Variáveis de Turbo e Auto-Spin ---
     let isTurboMode = false;
     let isAutoSpin = false;
-    let spinDuration = 3040; // Duração normal do spin em ms (38 * 80)
-    let turboSpinDuration = 1000; // Duração do spin em modo turbo em ms
+    let spinDuration = 3040;
+    let turboSpinDuration = 1000;
     let isMegaWinAnimating = false;
     let megaWinTimeoutId = null;
-    let currentSpinInterval = null; // Para controlar o intervalo do giro atual para aceleração
+    let currentSpinInterval = null;
 
     // Símbolos e suas probabilidades (Ponderação)
     const symbols = [
@@ -79,12 +81,12 @@ document.addEventListener('DOMContentLoaded', () => {
     symbols.forEach(symbol => {
         let weight;
         switch (symbol.name) {
-            case 'cherry': weight = 8; break; // Mais comum
+            case 'cherry': weight = 8; break;
             case 'bell': weight = 7; break;
             case 'bar': weight = 5; break;
             case 'seven': weight = 3; break;
-            case 'wild': weight = 2; break; // Mais raro no jogo base
-            case 'coin': weight = 4; break; // Scatter
+            case 'wild': weight = 2; break;
+            case 'coin': weight = 4; break;
             default: weight = 1;
         }
         for (let i = 0; i < weight; i++) {
@@ -92,9 +94,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-
     // Atualiza a exibição de saldo e aposta e estado dos botões
     function updateDisplay() {
+        console.log("Updating display. Current Balance:", balance.toFixed(2), "Current Bet:", currentBet.toFixed(2));
         balanceValue.textContent = balance.toFixed(2);
         betValueDisplayInGameInfo.textContent = currentBet.toFixed(2); 
         
@@ -102,7 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         spinButton.disabled = disableAllControls || balance < currentBet;
         
-        // Gerencia o estado dos botões de aposta pré-definidos
         betButtons.forEach(button => {
             const betAmount = parseFloat(button.dataset.bet);
             button.disabled = disableAllControls || betAmount > balance;
@@ -113,11 +114,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         
-        // Botões Turbo e Auto
         turboButton.disabled = disableAllControls;
         autoSpinButton.disabled = disableAllControls;
 
-        // Atualiza classe 'active' e texto para botões de turbo/auto
         if (isTurboMode) {
             turboButton.classList.add('active');
             turboButton.textContent = 'TURBO ATIVO';
@@ -133,10 +132,10 @@ document.addEventListener('DOMContentLoaded', () => {
             autoSpinButton.textContent = 'AUTO';
         }
 
-        versionNumberDisplay.textContent = VERSION; // Exibe o número da versão
+        versionNumberDisplay.textContent = VERSION;
     }
 
-    // Renderiza um símbolo na bobina, controlando se deve animar
+    // Renderiza um símbolo na bobina
     function renderSymbol(reelElement, symbolObj, animating = false) {
         reelElement.innerHTML = `<div class="symbol symbol-${symbolObj.name}">${symbolObj.display}</div>`;
         const symbolDiv = reelElement.querySelector('.symbol');
@@ -147,18 +146,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Seleciona um símbolo aleatório com base nas probabilidades ponderadas
+    // Seleciona um símbolo aleatório
     function getRandomSymbol(isBonusRoundSpin = false) {
         if (isBonusRoundSpin) {
             if (isFirstBonusSpin) {
-                // No primeiro giro do bônus, 10% de chance de WILD, 90% de "vazio"
                 return Math.random() < 0.1 ? bonusSymbol : { name: 'empty', display: ' ', multiplier: 0 };
             } else {
-                // A partir do segundo giro do bônus, 90% de chance de WILD, 10% de "vazio"
                 return Math.random() < 0.9 ? bonusSymbol : { name: 'empty', display: ' ', multiplier: 0 };
             }
         }
-        // Seleção ponderada para o jogo base
         return weightedSymbols[Math.floor(Math.random() * weightedSymbols.length)];
     }
 
@@ -170,6 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Função principal de giro
     function performSpin() {
+        console.log("Performing spin. In bonus round:", inBonusRound, "Balance:", balance);
         if (!inBonusRound && balance < currentBet) {
             showMessage("Saldo insuficiente para apostar!");
             stopAutoSpin();
@@ -188,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
         spinSound.play();
 
         const results = [
-            getRandomSymbol(inBonusRound), // Passa true se for giro de bônus
+            getRandomSymbol(inBonusRound),
             getRandomSymbol(inBonusRound),
             getRandomSymbol(inBonusRound)
         ];
@@ -198,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const intervalStep = 80;
         const maxSpins = Math.floor(currentSpinDuration / intervalStep); 
 
-        currentSpinInterval = setInterval(() => { // Armazena o ID do intervalo
+        currentSpinInterval = setInterval(() => {
             renderSymbol(reel1, getRandomSymbol(inBonusRound), true);
             renderSymbol(reel2, getRandomSymbol(inBonusRound), true);
             renderSymbol(reel3, getRandomSymbol(inBonusRound), true);
@@ -206,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (spinCount > maxSpins) {
                 clearInterval(currentSpinInterval);
-                currentSpinInterval = null; // Limpa o ID
+                currentSpinInterval = null;
                 renderSymbol(reel1, results[0], false);
                 renderSymbol(reel2, results[1], false);
                 renderSymbol(reel3, results[2], false);
@@ -215,7 +212,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     checkBonusWin(results);
                 } else {
                     checkWin(results);
-                    // A ativação do bônus agora é feita em checkWin, procurando por 3 scatters
                 }
 
                 if (!isMegaWinAnimating) { 
@@ -223,7 +219,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (!inBonusRound && mainMusic) mainMusic.play(); 
 
-                // Auto-spin não roda automaticamente no bônus
                 if (isAutoSpin && !inBonusRound && !isMegaWinAnimating) {
                     setTimeout(performSpin, 500); 
                 }
@@ -233,6 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Lógica de verificação de vitória (giro normal)
     function checkWin(results) {
+        console.log("Checking win. Results:", results.map(s => s.display).join(' '));
         let winAmount = 0;
         let message = "Não foi desta vez!";
 
@@ -240,14 +236,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const s2 = results[1];
         const s3 = results[2];
 
-        // Verificação de 3 Scatters para ativar o bônus
         const scatterCount = results.filter(s => s.name === scatterSymbol.name).length;
         if (scatterCount === 3) {
             startBonusRound();
-            return; // Sai da função para não processar como ganho normal
+            return;
         }
 
-        // Condições de vitória
         if (s1.name === s2.name && s2.name === s3.name) {
             winAmount = s1.multiplier * currentBet;
             message = `🎉 TRIO DE ${s1.display}! Você ganhou R$ ${winAmount.toFixed(2)}! 🎉`;
@@ -287,10 +281,10 @@ document.addEventListener('DOMContentLoaded', () => {
             winSound.play();
 
             if (winAmount >= (currentBet * 8) && winAmount >= 50) {
-                console.log("Condições para Mega Ganho atendidas! Chamando showMegaWin(). Ganho:", winAmount.toFixed(2), "Aposta:", currentBet.toFixed(2));
+                console.log("Condições para Mega Ganho atendidas! Ganho:", winAmount.toFixed(2));
                 showMegaWin(winAmount);
             } else {
-                console.log("Condições para Mega Ganho NÃO atendidas. Ganho:", winAmount.toFixed(2), "Aposta:", currentBet.toFixed(2), "Multiplicador de ganho:", (winAmount / currentBet).toFixed(2));
+                console.log("Condições para Mega Ganho NÃO atendidas. Ganho:", winAmount.toFixed(2));
                 showMessage(message);
             }
         } else {
@@ -303,13 +297,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Lógica do Bônus ---
     function startBonusRound() {
+        console.log("Starting bonus round!");
         inBonusRound = true;
-        bonusSpinsLeft = 5; // 5 giros de bônus
-        isFirstBonusSpin = true; // Marca o primeiro giro do bônus
+        bonusSpinsLeft = 5;
+        isFirstBonusSpin = true;
         showMessage("🎉 BÔNUS ATIVADO! 🎉 Prepare-se para o Fortune Tiger!");
 
-        stopAutoSpin(); // Desativa o auto-spin
-        isTurboMode = false; // Desativa o modo turbo
+        stopAutoSpin();
+        isTurboMode = false;
         turboButton.classList.remove('active');
         turboButton.textContent = 'TURBO';
 
@@ -318,10 +313,10 @@ document.addEventListener('DOMContentLoaded', () => {
         bonusMusic.play();
 
         updateDisplay();
-        // NÃO CHAMA performSpin AQUI. O jogador deve clicar.
     }
 
     function checkBonusWin(results) {
+        console.log("Checking bonus win. Spins left:", bonusSpinsLeft, "Results:", results.map(s => s.display).join(' '));
         let bonusWinAmount = 0;
         let message = `Bônus: ${bonusSpinsLeft} giros restantes...`;
 
@@ -329,12 +324,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const s2 = results[1];
         const s3 = results[2];
 
-        // Após o primeiro giro, a flag é desativada
         if (isFirstBonusSpin) {
             isFirstBonusSpin = false;
         }
 
-        // Condição de vitória do bônus: todas as 3 bobinas com o símbolo de bônus (Tigre)
         if (s1.name === bonusSymbol.name && s2.name === bonusSymbol.name && s3.name === bonusSymbol.name) {
             bonusWinAmount = currentBet * bonusMultiplier;
             message = `🏆 FORTUNE TIGER COMPLETO! Você ganhou R$ ${bonusWinAmount.toFixed(2)}! 🏆`;
@@ -343,10 +336,10 @@ document.addEventListener('DOMContentLoaded', () => {
             winSound.play();
             
             if (bonusWinAmount >= (currentBet * 8) && bonusWinAmount >= 50) {
-                console.log("Condições para Mega Ganho (Bônus) atendidas! Chamando showMegaWin(). Ganho:", bonusWinAmount.toFixed(2), "Aposta:", currentBet.toFixed(2));
+                console.log("Condições para Mega Ganho (Bônus) atendidas! Ganho:", bonusWinAmount.toFixed(2));
                 showMegaWin(bonusWinAmount, true);
             } else {
-                console.log("Condições para Mega Ganho (Bônus) NÃO atendidas. Ganho:", bonusWinAmount.toFixed(2), "Aposta:", currentBet.toFixed(2), "Multiplicador de ganho:", (bonusWinAmount / currentBet).toFixed(2));
+                console.log("Condições para Mega Ganho (Bônus) NÃO atendidas. Ganho:", bonusWinAmount.toFixed(2));
                 endBonusRound();
             }
         } else {
@@ -359,11 +352,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         showMessage(message);
         updateDisplay();
-
-        // Não chama performSpin automaticamente no bônus
     }
 
     function endBonusRound() {
+        console.log("Ending bonus round.");
         inBonusRound = false;
         bonusSpinsLeft = 0;
         showMessage("Bônus Encerrado. Boa sorte no próximo giro!");
@@ -381,11 +373,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let finishMegaWinCallback = null;
 
     function showMegaWin(amount, fromBonus = false) {
+        console.log("Showing Mega Win screen. Amount:", amount);
         isMegaWinAnimating = true;
         targetMegaWinAmount = amount;
         currentCountedAmount = 0;
         megaWinAmountDisplay.textContent = `R$ 0.00`;
-        megaWinScreen.classList.add('active');
+        megaWinScreen.classList.add('active'); // Ativa a tela de Mega Ganho
 
         if (mainMusic) mainMusic.pause();
         if (bonusMusic) bonusMusic.pause();
@@ -424,6 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function skipMegaWin() {
+        console.log("Skipping Mega Win animation.");
         if (megaWinTimeoutId) {
             clearTimeout(megaWinTimeoutId);
             megaWinTimeoutId = null;
@@ -440,7 +434,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function hideMegaWin(wasBonusRound) {
-        megaWinScreen.classList.remove('active');
+        console.log("Hiding Mega Win screen.");
+        megaWinScreen.classList.remove('active'); // Desativa a tela de Mega Ganho
         isMegaWinAnimating = false;
         megaWinSound.pause();
         megaWinSound.currentTime = 0;
@@ -461,11 +456,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Event Listeners para Botões ---
-    spinButton.addEventListener('click', performSpin);
+    spinButton.addEventListener('click', () => {
+        console.log("Spin button clicked.");
+        performSpin();
+    });
 
-    // Event listeners para os botões de aposta pré-definidos
     betButtons.forEach(button => {
         button.addEventListener('click', () => {
+            console.log("Bet button clicked:", button.dataset.bet);
             buttonClickSound.currentTime = 0;
             buttonClickSound.play();
             const newBet = parseFloat(button.dataset.bet);
@@ -478,16 +476,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- Lógica de Turbo Mode ---
     turboButton.addEventListener('click', () => {
+        console.log("Turbo button clicked. Current turbo mode:", isTurboMode);
         buttonClickSound.currentTime = 0;
         buttonClickSound.play();
         isTurboMode = !isTurboMode;
         updateDisplay();
     });
 
-    // --- Lógica de Auto Spin ---
     autoSpinButton.addEventListener('click', () => {
+        console.log("Auto Spin button clicked. Current auto spin mode:", isAutoSpin);
         buttonClickSound.currentTime = 0;
         buttonClickSound.play();
         if (isAutoSpin) {
@@ -498,6 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function startAutoSpin() {
+        console.log("Starting Auto Spin.");
         if (balance < currentBet) {
             showMessage("Saldo insuficiente para iniciar Auto Spin!");
             return;
@@ -508,10 +507,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function stopAutoSpin() {
+        console.log("Stopping Auto Spin.");
         isAutoSpin = false;
         updateDisplay();
     }
 
     // Acelerar giro ao tocar na tela (fora do modo turbo)
-    // Adiciona o listener ao contêiner principal para capturar cliques na área do jogo
-    document.querySelector('.game-container').addEventListener('click', (event
+    document.querySelector('.game-container').addEventListener('click', (event) => {
+        const clickedElement = event.target;
+        const isControlButton = clickedElement.closest('.controls') || clickedElement.closest('#mega-win-screen');
+        
+        if (currentSpinInterval && !isTurboMode && !isControlButton) {
+            console.log("Screen clicked to accelerate spin.");
+            clearInterval(currentSpinInterval);
+            currentSpinInterval = null;
+            
+            const reels = [reel1, reel2, reel3];
+            const finalResults = reels.map(() => {
+                return getRandomSymbol(inBonusRound);
+            });
+            
+            renderSymbol(reel1, finalResults[0], false);
+            renderSymbol(reel2, finalResults[1], false);
+            renderSymbol(reel3, finalResults[2], false);
+
+            if (inBonusRound) {
+                checkBonusWin(finalResults);
+            } else {
+                checkWin(finalResults);
+            }
+
+            if (!isMegaWinAnimating) { 
+                spinButton.disabled = false; 
+            }
+            if (!inBo
