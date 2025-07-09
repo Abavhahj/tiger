@@ -1,6 +1,3 @@
-// Adicione esta linha no início do seu script.js
-alert("JavaScript está funcionando!"); 
-
 document.addEventListener('DOMContentLoaded', () => {
     const reel1 = document.getElementById('reel1');
     const reel2 = document.getElementById('reel2');
@@ -17,6 +14,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const minBet = 0.50;
     const maxBet = 10.00;
     const betStep = 0.50;
+
+    // --- Configuração de Áudio ---
+    const audioPath = './audio/'; // Caminho para a pasta de áudio
+
+    // Crie elementos de áudio
+    const spinSound = new Audio(audioPath + 'spin.mp3'); // Certifique-se de ter spin.mp3
+    const winSound = new Audio(audioPath + 'win.mp3');   // Certifique-se de ter win.mp3
+    const loseSound = new Audio(audioPath + 'lose.mp3'); // Certifique-se de ter lose.mp3
+    const buttonClickSound = new Audio(audioPath + 'button.mp3'); // Certifique-se de ter button.mp3
+
+    // Opcional: Ajustar volume
+    spinSound.volume = 0.7;
+    winSound.volume = 0.8;
+    loseSound.volume = 0.7;
+    buttonClickSound.volume = 0.5;
 
     // Símbolos: Nome (para referência), Display (o que aparece), Multiplicador
     const symbols = [
@@ -55,6 +67,10 @@ document.addEventListener('DOMContentLoaded', () => {
         updateDisplay();
         showMessage("Girando...");
         spinButton.disabled = true; // Desabilita o botão enquanto gira
+
+        // Toca o som de giro
+        spinSound.currentTime = 0; // Reinicia o som se já estiver tocando
+        spinSound.play();
 
         const results = [getRandomSymbol(), getRandomSymbol(), getRandomSymbol()];
 
@@ -129,6 +145,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (winAmount > 0) {
             balance += winAmount;
+            winSound.currentTime = 0;
+            winSound.play(); // Toca som de vitória
+        } else {
+            loseSound.currentTime = 0;
+            loseSound.play(); // Toca som de derrota
         }
         showMessage(message);
         updateDisplay();
@@ -136,6 +157,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Botões de aposta
     betDownButton.addEventListener('click', () => {
+        buttonClickSound.currentTime = 0;
+        buttonClickSound.play(); // Toca som de clique
         if (currentBet > minBet) {
             currentBet = Math.max(minBet, currentBet - betStep);
             updateDisplay();
@@ -143,6 +166,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     betUpButton.addEventListener('click', () => {
+        buttonClickSound.currentTime = 0;
+        buttonClickSound.play(); // Toca som de clique
         if (currentBet < maxBet) {
             currentBet = Math.min(maxBet, currentBet + betStep);
             updateDisplay();
@@ -152,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Exibe mensagens temporárias
     function showMessage(msg) {
         messageDisplay.textContent = msg;
-        // Opcional: Limpar a mensagem após alguns segundos
+        // Opcional: Limpar a mensagem após alguns segundos (descomente se quiser)
         // setTimeout(() => {
         //     messageDisplay.textContent = '';
         // }, 3000);
