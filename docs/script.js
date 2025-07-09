@@ -103,7 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
         spinButton.disabled = true; // Desabilita o botão enquanto gira
 
         // Para o som principal e toca o som de giro
-        if (mainMusic) mainMusic.pause();
         spinSound.currentTime = 0; 
         spinSound.play();
 
