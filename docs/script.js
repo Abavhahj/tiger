@@ -12,6 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const turboButton = document.getElementById('turbo-button');
     const autoSpinButton = document.getElementById('auto-spin-button');
 
+    // Elementos da tela de Mega Ganho
+    const megaWinScreen = document.getElementById('mega-win-screen');
+    const megaWinAmountDisplay = document.getElementById('mega-win-amount');
+    
     let balance = 100.00;
     let currentBet = 1.00;
     const minBet = 0.50;
@@ -27,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const buttonClickSound = new Audio(audioPath + 'button.mp3');
     const bonusMusic = new Audio(audioPath + 'bonus_music.mp3');
     const mainMusic = new Audio(audioPath + 'main_music.mp3'); 
+    const megaWinSound = new Audio(audioPath + 'mega_win_sound.mp3'); // NOVO SOM
 
     // Configurações de volume
     spinSound.volume = 0.7;
@@ -35,9 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
     buttonClickSound.volume = 0.5;
     bonusMusic.volume = 0.6;
     mainMusic.volume = 0.2;
+    megaWinSound.volume = 0.8; // Volume para o som de mega ganho
 
     mainMusic.loop = true;
     bonusMusic.loop = true;
+    // megaWinSound.loop = false; // Som de mega ganho não deve repetir
 
     // --- Variáveis do Bônus ---
     let inBonusRound = false;
@@ -51,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isAutoSpin = false;
     let spinDuration = 3040; // Duração normal do spin em ms (38 * 80)
     let turboSpinDuration = 1000; // Duração do spin em modo turbo em ms
+    let isMegaWinAnimating = false; // NOVO: Flag para controlar se a animação de mega ganho está ativa
 
     // Símbolos
     const symbols = [
@@ -68,15 +76,15 @@ document.addEventListener('DOMContentLoaded', () => {
         betValueDisplayInGameInfo.textContent = currentBet.toFixed(2); 
         betValueDisplayInControls.textContent = currentBet.toFixed(2); 
         
-        const disableSpinAndBet = inBonusRound || isAutoSpin;
+        const disableSpinAndBet = inBonusRound || isAutoSpin || isMegaWinAnimating; // Desabilita durante mega ganho
 
         spinButton.disabled = disableSpinAndBet || balance < currentBet;
         betDownButton.disabled = disableSpinAndBet;
         betUpButton.disabled = disableSpinAndBet;
         
         // Botões Turbo e Auto
-        turboButton.disabled = inBonusRound;
-        autoSpinButton.disabled = inBonusRound;
+        turboButton.disabled = inBonusRound || isMegaWinAnimating; // Desabilita durante mega ganho
+        autoSpinButton.disabled = inBonusRound || isMegaWinAnimating; // Desabilita durante mega ganho
 
         // Atualiza classe 'active' e texto para botões de turbo/auto
         if (isTurboMode) {
@@ -166,10 +174,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         startBonusRound();
                     }
                 }
-                spinButton.disabled = false; 
+                // Habilita o botão apenas se não estiver em animação de mega ganho
+                if (!isMegaWinAnimating) { 
+                    spinButton.disabled = false; 
+                }
                 if (!inBonusRound && mainMusic) mainMusic.play(); 
 
-                if (isAutoSpin && !inBonusRound) {
+                if (isAutoSpin && !inBonusRound && !isMegaWinAnimating) { // Não inicia auto-spin se estiver em mega ganho
                     setTimeout(performSpin, 500); 
                 }
             }
@@ -223,11 +234,18 @@ document.addEventListener('DOMContentLoaded', () => {
             balance += winAmount;
             winSound.currentTime = 0;
             winSound.play();
+
+            // Lógica para Mega Ganho
+            if (winAmount >= (currentBet * 8) && winAmount >= 50) { // 8x a aposta E mínimo de R$50
+                showMegaWin(winAmount);
+            } else {
+                showMessage(message);
+            }
         } else {
             loseSound.currentTime = 0;
             loseSound.play();
+            showMessage(message);
         }
-        showMessage(message);
         updateDisplay();
     }
 
@@ -262,7 +280,12 @@ document.addEventListener('DOMContentLoaded', () => {
             balance += bonusWinAmount;
             winSound.currentTime = 0;
             winSound.play();
-            endBonusRound(); // Termina o bônus imediatamente se ganhar
+            // Lógica para Mega Ganho no bônus
+            if (bonusWinAmount >= (currentBet * 8) && bonusWinAmount >= 50) {
+                showMegaWin(bonusWinAmount, true); // true indica que é do bônus, para encerrá-lo depois
+            } else {
+                endBonusRound(); // Termina o bônus imediatamente se ganhar, mas não foi mega
+            }
         } else {
             loseSound.currentTime = 0;
             loseSound.play();
@@ -274,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showMessage(message);
         updateDisplay();
 
-        if (inBonusRound && bonusSpinsLeft > 0) {
+        if (inBonusRound && bonusSpinsLeft > 0 && !isMegaWinAnimating) {
             setTimeout(performSpin, 500);
         }
     }
@@ -288,6 +311,82 @@ document.addEventListener('DOMContentLoaded', () => {
         bonusMusic.currentTime = 0;
         if (mainMusic) mainMusic.play();
         updateDisplay();
+    }
+
+    // --- Lógica de Mega Ganho ---
+    let animationInterval; // Para o contador
+    let currentCountedAmount = 0;
+    let targetMegaWinAmount = 0;
+    let finishMegaWinCallback = null; // Callback para quando a animação terminar (ex: fim do bônus)
+
+    function showMegaWin(amount, fromBonus = false) {
+        isMegaWinAnimating = true;
+        targetMegaWinAmount = amount;
+        currentCountedAmount = 0;
+        megaWinAmountDisplay.textContent = `R$ 0.00`;
+        megaWinScreen.classList.add('active'); // Mostra a tela de mega ganho
+
+        if (mainMusic) mainMusic.pause();
+        if (bonusMusic) bonusMusic.pause();
+        megaWinSound.currentTime = 0;
+        megaWinSound.play();
+
+        // Faz o valor subir
+        const duration = 3000; // 3 segundos para o contador subir
+        const steps = 100; // Quantidade de passos
+        const increment = targetMegaWinAmount / steps;
+        let stepCount = 0;
+
+        animationInterval = setInterval(() => {
+            currentCountedAmount += increment;
+            stepCount++;
+            if (stepCount >= steps) {
+                currentCountedAmount = targetMegaWinAmount; // Garante que o valor final seja exato
+                clearInterval(animationInterval);
+                animationInterval = null; // Limpa o intervalo
+                
+                // Finaliza a animação após um pequeno atraso para o usuário ver o valor final
+                setTimeout(() => hideMegaWin(fromBonus), 2000); // Exibe por 2 segundos após o fim da contagem
+            }
+            megaWinAmountDisplay.textContent = `R$ ${currentCountedAmount.toFixed(2)}`;
+        }, duration / steps);
+
+        // Permite pular clicando na tela
+        megaWinScreen.addEventListener('click', skipMegaWin, { once: true });
+
+        if (fromBonus) {
+            finishMegaWinCallback = () => {
+                endBonusRound();
+            };
+        }
+        updateDisplay(); // Atualiza estado dos botões
+    }
+
+    function skipMegaWin() {
+        if (animationInterval) {
+            clearInterval(animationInterval);
+            animationInterval = null;
+        }
+        currentCountedAmount = targetMegaWinAmount; // Seta o valor direto
+        megaWinAmountDisplay.textContent = `R$ ${targetMegaWinAmount.toFixed(2)}`;
+        
+        // Finaliza a animação mais rapidamente após pular
+        setTimeout(() => hideMegaWin(finishMegaWinCallback !== null), 500); // 0.5 segundos após o clique
+    }
+
+    function hideMegaWin(wasBonusRound) {
+        megaWinScreen.classList.remove('active'); // Oculta a tela
+        isMegaWinAnimating = false;
+        megaWinSound.pause(); // Para o som do mega ganho
+        megaWinSound.currentTime = 0;
+
+        if (wasBonusRound && finishMegaWinCallback) {
+            finishMegaWinCallback(); // Chama o callback para encerrar o bônus
+            finishMegaWinCallback = null;
+        } else {
+            if (mainMusic) mainMusic.play(); // Volta a música principal se não for bônus
+        }
+        updateDisplay(); // Re-habilita botões
     }
 
     // --- Event Listeners para Botões ---
