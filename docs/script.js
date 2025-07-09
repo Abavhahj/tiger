@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loseSound = new Audio(audioPath + 'lose.mp3');
     const buttonClickSound = new Audio(audioPath + 'button.mp3');
     const bonusMusic = new Audio(audioPath + 'bonus_music.mp3');
-    const mainMusic = new Audio(audioPath + 'main_music.mp3'); // Opcional: Música de fundo principal
+    const mainMusic = new Audio(audioPath + 'main_music.mp3'); 
 
     // Configurações de volume
     spinSound.volume = 0.7;
@@ -64,40 +64,46 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateDisplay() {
         balanceValue.textContent = balance.toFixed(2);
         betValue.textContent = currentBet.toFixed(2);
-
+        
         const disableSpinAndBet = inBonusRound || isAutoSpin;
 
         spinButton.disabled = disableSpinAndBet || balance < currentBet;
         betDownButton.disabled = disableSpinAndBet;
         betUpButton.disabled = disableSpinAndBet;
-
-        // Botões Turbo e Auto não devem ser desabilitados pelo auto-spin ou bônus, apenas controlados
-        // Eles são desabilitados apenas durante o bônus para evitar mudanças de modo no meio
+        
+        // Botões Turbo e Auto
         turboButton.disabled = inBonusRound;
         autoSpinButton.disabled = inBonusRound;
-
 
         // Atualiza classe 'active' e texto para botões de turbo/auto
         if (isTurboMode) {
             turboButton.classList.add('active');
-            turboButton.textContent = 'TURBO ATIVO'; // Texto no botão
+            turboButton.textContent = 'TURBO ATIVO';
         } else {
             turboButton.classList.remove('active');
-            turboButton.textContent = 'TURBO'; // Texto no botão
+            turboButton.textContent = 'TURBO';
         }
         if (isAutoSpin) {
             autoSpinButton.classList.add('active');
-            autoSpinButton.textContent = 'AUTO ATIVO'; // Texto no botão
+            autoSpinButton.textContent = 'AUTO ATIVO';
         } else {
             autoSpinButton.classList.remove('active');
-            autoSpinButton.textContent = 'AUTO'; // Texto no botão
+            autoSpinButton.textContent = 'AUTO';
         }
     }
 
-    function renderSymbol(reelElement, symbolObj) {
+    // Renderiza um símbolo na bobina, controlando se deve animar
+    function renderSymbol(reelElement, symbolObj, animating = false) {
         reelElement.innerHTML = `<div class="symbol symbol-${symbolObj.name}">${symbolObj.display}</div>`;
+        const symbolDiv = reelElement.querySelector('.symbol');
+        if (animating) {
+            symbolDiv.classList.add('animating'); // Adiciona classe para animar
+        } else {
+            symbolDiv.classList.remove('animating'); // Remove ao parar
+        }
     }
 
+    // Seleciona um símbolo aleatório
     function getRandomSymbol() {
         if (inBonusRound) {
             return Math.random() < 0.9 ? bonusSymbol : { name: 'empty', display: ' ', multiplier: 0 };
@@ -105,6 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return symbols[Math.floor(Math.random() * symbols.length)];
     }
 
+    // Toca a música principal
     function playMainMusic() {
         mainMusic.currentTime = 0;
         mainMusic.play().catch(e => console.log("Música principal não pôde tocar automaticamente:", e));
@@ -112,21 +119,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Função principal de giro
     function performSpin() {
-        // Se estiver em auto-spin, verifica se ainda há saldo para apostar
         if (!inBonusRound && balance < currentBet) {
             showMessage("Saldo insuficiente para apostar!");
-            stopAutoSpin(); // Para auto-spin se o saldo acabar
+            stopAutoSpin();
             return;
         }
-        // Se não estiver em bônus (que não desconta a aposta), subtrai a aposta
         if (!inBonusRound) {
             balance -= currentBet;
         }
 
-        updateDisplay(); // Atualiza display e estado dos botões
+        updateDisplay();
         showMessage(inBonusRound ? `Bônus: ${bonusSpinsLeft} giros restantes...` : "Girando...");
-
-        spinButton.disabled = true; // Desabilita o botão enquanto gira
+        
+        spinButton.disabled = true;
 
         spinSound.currentTime = 0;
         spinSound.play();
@@ -139,32 +144,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const maxSpins = Math.floor(currentSpinDuration / intervalStep); 
 
         const spinInterval = setInterval(() => {
-            renderSymbol(reel1, getRandomSymbol());
-            renderSymbol(reel2, getRandomSymbol());
-            renderSymbol(reel3, getRandomSymbol());
+            renderSymbol(reel1, getRandomSymbol(), true); // Anima durante o giro
+            renderSymbol(reel2, getRandomSymbol(), true);
+            renderSymbol(reel3, getRandomSymbol(), true);
             spinCount++;
 
             if (spinCount > maxSpins) {
                 clearInterval(spinInterval);
-                renderSymbol(reel1, results[0]);
-                renderSymbol(reel2, results[1]);
-                renderSymbol(reel3, results[2]);
-
+                renderSymbol(reel1, results[0], false); // Para a animação no resultado final
+                renderSymbol(reel2, results[1], false);
+                renderSymbol(reel3, results[2], false);
+                
                 if (inBonusRound) {
                     checkBonusWin(results);
                 } else {
                     checkWin(results);
-                    // Chance de ativar o bônus após um giro normal
                     if (Math.random() < bonusChance) {
                         startBonusRound();
                     }
                 }
-                spinButton.disabled = false; // Habilita o botão novamente
-                if (!inBonusRound && mainMusic) mainMusic.play(); // Retoma música principal se não estiver em bônus
+                spinButton.disabled = false; 
+                if (!inBonusRound && mainMusic) mainMusic.play(); 
 
-                // Se estiver em auto-spin e não em bônus, gira novamente após um pequeno atraso
                 if (isAutoSpin && !inBonusRound) {
-                    setTimeout(performSpin, 500); // Pequeno atraso entre giros automáticos
+                    setTimeout(performSpin, 500); 
                 }
             }
         }, intervalStep);
@@ -179,27 +182,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const s2 = results[1];
         const s3 = results[2];
 
-        // Condições de vitória (mesmas do Fortune Tiger real)
+        // Condições de vitória
         if (s1.name === s2.name && s2.name === s3.name) {
             winAmount = s1.multiplier * currentBet;
             message = `🎉 TRIO DE ${s1.display}! Você ganhou R$ ${winAmount.toFixed(2)}! 🎉`;
         }
-        // Wild no primeiro, outros dois iguais
         else if (s1.name === 'wild' && s2.name === s3.name && s2.name !== 'wild') {
             winAmount = s2.multiplier * currentBet * 1.5;
             message = `🎉 WILD com ${s2.display}! Você ganhou R$ ${winAmount.toFixed(2)}! 🎉`;
         }
-        // Wild no meio, outros dois iguais
         else if (s2.name === 'wild' && s1.name === s3.name && s1.name !== 'wild') {
             winAmount = s1.multiplier * currentBet * 1.5;
             message = `🎉 WILD com ${s1.display}! Você ganhou R$ ${winAmount.toFixed(2)}! 🎉`;
         }
-        // Wild no último, outros dois iguais
         else if (s3.name === 'wild' && s1.name === s2.name && s1.name !== 'wild') {
             winAmount = s1.multiplier * currentBet * 1.5;
             message = `🎉 WILD com ${s1.display}! Você ganhou R$ ${winAmount.toFixed(2)}! 🎉`;
         }
-        // Dois wilds e um símbolo diferente
         else if (s1.name === 'wild' && s2.name === 'wild' && s3.name !== 'wild') {
             winAmount = s3.multiplier * currentBet * 2;
             message = `🤩 DOIS WILDS com ${s3.display}! Você ganhou R$ ${winAmount.toFixed(2)}! 🤩`;
@@ -212,7 +211,6 @@ document.addEventListener('DOMContentLoaded', () => {
             winAmount = s1.multiplier * currentBet * 2;
             message = `🤩 DOIS WILDS com ${s1.display}! Você ganhou R$ ${winAmount.toFixed(2)}! 🤩`;
         }
-        // Três Wilds (Jackpot)
         else if (s1.name === 'wild' && s2.name === 'wild' && s3.name === 'wild') {
             winAmount = symbols.find(s => s.name === 'wild').multiplier * currentBet * 3;
             message = `👑 FORTUNE TIGER! VOCÊ GANHOU O JACKPOT DE R$ ${winAmount.toFixed(2)}! 👑`;
@@ -243,7 +241,6 @@ document.addEventListener('DOMContentLoaded', () => {
         bonusMusic.play();
 
         updateDisplay();
-        // Inicia o primeiro giro do bônus
         setTimeout(performSpin, 1000); // Pequeno delay para a música do bônus começar
     }
 
@@ -274,7 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showMessage(message);
         updateDisplay();
 
-        // Se ainda houver giros de bônus, gira novamente após um pequeno atraso
         if (inBonusRound && bonusSpinsLeft > 0) {
             setTimeout(performSpin, 500);
         }
@@ -286,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showMessage("Bônus Encerrado. Boa sorte no próximo giro!");
 
         bonusMusic.pause();
-        bonusMusic.currentTime = 0; // Reinicia a música do bônus para a próxima vez
+        bonusMusic.currentTime = 0;
         if (mainMusic) mainMusic.play();
         updateDisplay();
     }
@@ -355,8 +351,8 @@ document.addEventListener('DOMContentLoaded', () => {
     playMainMusic();
 
     // Renderiza símbolos iniciais e atualiza o display
-    renderSymbol(reel1, getRandomSymbol());
-    renderSymbol(reel2, getRandomSymbol());
-    renderSymbol(reel3, getRandomSymbol());
+    renderSymbol(reel1, getRandomSymbol(), false); // Símbolos iniciais NÃO devem animar
+    renderSymbol(reel2, getRandomSymbol(), false);
+    renderSymbol(reel3, getRandomSymbol(), false);
     updateDisplay(); // Garante que o estado inicial dos botões esteja correto
 });
